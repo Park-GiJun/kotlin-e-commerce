@@ -4,21 +4,23 @@ import com.gijun.kotlinecommerce.application.dto.command.product.productCategory
 import com.gijun.kotlinecommerce.application.dto.command.product.productCategory.UpdateProductCategoryCommand
 import com.gijun.kotlinecommerce.application.port.input.product.ProductCategoryUseCase
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductCategoryJpaPort
-import com.gijun.kotlinecommerce.application.validator.product.ProductCategoryValidator
+import com.gijun.kotlinecommerce.domain.common.validator.CommonValidators
+import com.gijun.kotlinecommerce.domain.product.exception.ProductCategoryNotFoundException
+import com.gijun.kotlinecommerce.domain.product.exception.ProductValidationException
 import com.gijun.kotlinecommerce.domain.product.model.ProductCategoryModel
+import org.springframework.stereotype.Service
 
+@Service
 class ProductCategoryHandler(
     private val productCategoryJpaPort: ProductCategoryJpaPort
 ) : ProductCategoryUseCase {
-    private val categoryValidator = ProductCategoryValidator(productCategoryJpaPort)
 
     override fun createProductCategory(command: CreateProductCategoryCommand): ProductCategoryModel {
         val parentId = command.parentId ?: 0
-        categoryValidator.validateForCreate(parentId, command.name)
+        validateForCreate(parentId, command.name)
 
-        // parentId가 0이 아니면 부모 카테고리가 존재하는지 검증
         if (parentId != 0L) {
-            categoryValidator.validateCategoryExists(parentId)
+            validateCategoryExists(parentId)
         }
 
         val newCategory = ProductCategoryModel.create(command.name, parentId)
@@ -30,20 +32,18 @@ class ProductCategoryHandler(
     }
 
     override fun getProductCategoryById(categoryId: Long): ProductCategoryModel {
-        return categoryValidator.validateCategoryExists(categoryId)
+        return validateCategoryExists(categoryId)
     }
 
     override fun updateProductCategory(command: UpdateProductCategoryCommand): ProductCategoryModel {
         val parentId = command.parentId ?: 0
-        categoryValidator.validateForUpdate(command.id, parentId, command.name)
-        categoryValidator.validateCategoryExists(command.id)
+        validateForUpdate(command.id, parentId, command.name)
+        validateCategoryExists(command.id)
 
-        // parentId가 0이 아니면 부모 카테고리가 존재하는지 검증
         if (parentId != 0L) {
-            categoryValidator.validateCategoryExists(parentId)
+            validateCategoryExists(parentId)
         }
 
-        // 자기 자신을 부모로 설정하는 것 방지
         if (command.id == parentId) {
             throw IllegalArgumentException("Category cannot be its own parent")
         }
@@ -53,7 +53,37 @@ class ProductCategoryHandler(
     }
 
     override fun deleteProductCategory(categoryId: Long): ProductCategoryModel {
-        categoryValidator.validateCategoryExists(categoryId)
+        validateCategoryExists(categoryId)
         return productCategoryJpaPort.delete(categoryId)
+    }
+
+    private fun validateCategoryExists(categoryId: Long): ProductCategoryModel {
+        return productCategoryJpaPort.findById(categoryId)
+            ?: throw ProductCategoryNotFoundException(categoryId)
+    }
+
+    private fun validateCategoryName(name: String) {
+        try {
+            CommonValidators.validateNotBlank(name, "Category name")
+            CommonValidators.validateLength(name, "Category name", CATEGORY_NAME_MIN_LENGTH, CATEGORY_NAME_MAX_LENGTH)
+        } catch (e: Exception) {
+            throw ProductValidationException(e.message ?: "Category name validation failed", e)
+        }
+    }
+
+    private fun validateForCreate(parentId: Long, name: String) {
+        validateCategoryName(name)
+        CommonValidators.validateNonNegative(parentId, "Parent Category ID")
+    }
+
+    private fun validateForUpdate(id: Long, parentId: Long, name: String) {
+        CommonValidators.validatePositive(id, "Category ID")
+        validateCategoryName(name)
+        CommonValidators.validateNonNegative(parentId, "Parent Category ID")
+    }
+
+    companion object {
+        private const val CATEGORY_NAME_MIN_LENGTH = 1
+        private const val CATEGORY_NAME_MAX_LENGTH = 100
     }
 }
