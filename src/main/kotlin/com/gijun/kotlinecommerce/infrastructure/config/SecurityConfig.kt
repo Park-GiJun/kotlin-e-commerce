@@ -34,8 +34,13 @@ class SecurityConfig(
                 authorize
                     // Public endpoints
                     .requestMatchers(
+                        "/",
+                        "/login.html",
+                        "/register.html",
                         "/api/users/register",
                         "/api/users/login",
+                        "/js/**",
+                        "/css/**",
                         "/swagger-ui/**",
                         "/swagger-ui.html",
                         "/v3/api-docs/**",
