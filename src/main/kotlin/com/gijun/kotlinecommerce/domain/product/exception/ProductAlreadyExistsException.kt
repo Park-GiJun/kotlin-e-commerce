@@ -6,5 +6,5 @@ class ProductAlreadyExistsException(
     message: String = "Product already exists",
     cause: Throwable? = null
 ) : DomainAlreadyExistsException(message, cause) {
-    constructor(productName: String) : this("Product with name '$productName' already exists")
+    constructor(productName: String) : this("Product with name '$productName' already exists", null)
 }
