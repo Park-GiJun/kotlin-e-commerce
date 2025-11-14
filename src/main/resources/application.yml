@@ -13,10 +13,14 @@ spring:
     serialization:
       fail-on-empty-beans: false
 
+jwt:
+  secret: mySecretKeyForJwtTokenGenerationAndValidationPleaseChangeThisInProduction
+  expiration: 86400000 # 24 hours in milliseconds
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
     operations-sorter: alpha
     tags-sorter: alpha
   api-docs:
-    path: /api-docs
+    path: /v3/api-docs
