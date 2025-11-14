@@ -8,18 +8,21 @@ import com.gijun.kotlinecommerce.domain.user.exception.UserAlreadyExistsExceptio
 import com.gijun.kotlinecommerce.domain.user.exception.UserNotFoundException
 import com.gijun.kotlinecommerce.domain.user.exception.UserValidationException
 import com.gijun.kotlinecommerce.domain.user.model.UserModel
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
 class UserHandler(
-    private val userJpaPort: UserJpaPort
+    private val userJpaPort: UserJpaPort,
+    private val passwordEncoder: PasswordEncoder
 ) : UserUseCase {
 
     override fun registerUser(command: RegisterUserCommand): UserModel {
         validateForRegister(command.email, command.name, command.password)
         validateUserNotExists(command.email)
 
-        val newUser = UserModel.create(command.email, command.name, command.password)
+        val encodedPassword = passwordEncoder.encode(command.password)
+        val newUser = UserModel.create(command.email, command.name, encodedPassword, command.role)
         return userJpaPort.save(newUser)
     }
 
@@ -31,6 +34,19 @@ class UserHandler(
 
     override fun getUserByEmail(email: String): UserModel? {
         return userJpaPort.findByUserId(email)
+    }
+
+    override fun login(
+        email: String,
+        password: String
+    ): UserModel? {
+        val user = userJpaPort.findByUserId(email) ?: return null
+
+        return if (passwordEncoder.matches(password, user.password)) {
+            user
+        } else {
+            null
+        }
     }
 
     private fun validateUserExists(userId: String): UserModel {

@@ -22,11 +22,11 @@ class UserJpaPortAdapter(
     }
 
     override fun findByUserId(userId: String): UserModel? {
-        return userJpaRepository.findByUserId(userId)?.toDomainModel()
+        return userJpaRepository.findByEmail(userId)?.toDomainModel()
     }
 
     override fun delete(userModel: UserModel): UserModel {
-        userModel.id.let { userJpaRepository.deleteById(it) }
+        userModel.id?.let { userJpaRepository.deleteById(it) }
         return userModel
     }
 }

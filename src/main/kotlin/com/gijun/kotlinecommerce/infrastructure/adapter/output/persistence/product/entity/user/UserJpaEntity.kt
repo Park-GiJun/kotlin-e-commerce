@@ -1,12 +1,9 @@
 package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.entity.user
 
 import com.gijun.kotlinecommerce.domain.user.model.UserModel
+import com.gijun.kotlinecommerce.domain.user.model.UserRole
 import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.common.BaseEntity
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "user")
@@ -19,7 +16,11 @@ class UserJpaEntity(
 
     var name: String = "",
 
-    var password: String = ""
+    var password: String = "",
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var role: UserRole = UserRole.USER
 ) : BaseEntity() {
 
     fun toDomainModel(): UserModel {
@@ -27,7 +28,8 @@ class UserJpaEntity(
             id = this.id ?: 0L,
             email = this.email,
             name = this.name,
-            password = this.password
+            password = this.password,
+            role = this.role
         )
     }
 
@@ -37,7 +39,8 @@ class UserJpaEntity(
                 id = model.id,
                 email = model.email,
                 name = model.name,
-                password = model.password
+                password = model.password,
+                role = model.role
             )
         }
     }
