@@ -5,5 +5,5 @@ import com.linecorp.kotlinjdsl.support.spring.data.jpa.repository.KotlinJdslJpql
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface UserJpaRepository : JpaRepository<UserJpaEntity, Long>, KotlinJdslJpqlExecutor {
-    fun findByUserId(userId: String): UserJpaEntity?
+    fun findByEmail(email: String): UserJpaEntity?
 }

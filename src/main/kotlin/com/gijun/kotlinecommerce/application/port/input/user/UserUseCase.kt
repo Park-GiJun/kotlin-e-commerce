@@ -7,4 +7,5 @@ interface UserUseCase {
     fun registerUser(command: RegisterUserCommand): UserModel
     fun deleteUser(userId: String) : Boolean
     fun getUserByEmail(email: String) : UserModel?
+    fun login(email: String, password: String) : UserModel?
 }
