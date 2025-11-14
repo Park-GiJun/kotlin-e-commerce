@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  mysql-dev:
+    image: mysql:8.0
+    container_name: ecommerce-mysql-dev
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - mysql-dev-data:/var/lib/mysql
+    networks:
+      - ecommerce-network-dev
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  redis-dev:
+    image: redis:7-alpine
+    container_name: ecommerce-redis-dev
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis-dev-data:/data
+    networks:
+      - ecommerce-network-dev
+    command: redis-server --appendonly yes
+
+  zookeeper-dev:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: ecommerce-zookeeper-dev
+    restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper-dev-data:/var/lib/zookeeper/data
+      - zookeeper-dev-log:/var/lib/zookeeper/log
+    networks:
+      - ecommerce-network-dev
+
+  kafka-dev:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: ecommerce-kafka-dev
+    restart: unless-stopped
+    depends_on:
+      - zookeeper-dev
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-dev:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:${KAFKA_PORT}
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "${KAFKA_PORT}:9092"
+    volumes:
+      - kafka-dev-data:/var/lib/kafka/data
+    networks:
+      - ecommerce-network-dev
+
+volumes:
+  mysql-dev-data:
+  redis-dev-data:
+  zookeeper-dev-data:
+  zookeeper-dev-log:
+  kafka-dev-data:
+
+networks:
+  ecommerce-network-dev:
+    driver: bridge

@@ -7,6 +7,7 @@ class ProductOutOfStockException(
     cause: Throwable? = null
 ) : DomainConflictException(message, cause) {
     constructor(productId: Long, requestedQuantity: Int, availableQuantity: Int) : this(
-        "Product $productId is out of stock. Requested: $requestedQuantity, Available: $availableQuantity"
+        "Product $productId is out of stock. Requested: $requestedQuantity, Available: $availableQuantity",
+        null
     )
 }
