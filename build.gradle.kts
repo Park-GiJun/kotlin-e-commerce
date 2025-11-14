@@ -29,8 +29,10 @@ dependencies {
     implementation("com.linecorp.kotlin-jdsl:jpql-render:3.5.3")
     implementation("com.linecorp.kotlin-jdsl:spring-data-jpa-support:3.5.3")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14")
+    implementation("org.springframework.boot:spring-boot-starter-security")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testImplementation("org.springframework.security:spring-security-test")
     runtimeOnly("com.mysql:mysql-connector-j")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
