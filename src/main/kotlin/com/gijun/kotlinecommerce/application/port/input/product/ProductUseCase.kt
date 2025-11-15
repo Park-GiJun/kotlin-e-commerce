@@ -2,12 +2,13 @@ package com.gijun.kotlinecommerce.application.port.input.product
 
 import com.gijun.kotlinecommerce.application.dto.command.product.product.CreateProductCommand
 import com.gijun.kotlinecommerce.application.dto.command.product.product.UpdateProductCommand
+import com.gijun.kotlinecommerce.application.dto.result.product.GetProductListResult
 import com.gijun.kotlinecommerce.domain.product.model.ProductModel
 
 interface ProductUseCase {
     fun createProduct(command: CreateProductCommand) : ProductModel
     fun getProductById(id : Long) : ProductModel
-    fun getAllProducts() : List<ProductModel>
+    fun getAllProducts() : List<GetProductListResult>
     fun deleteProduct(id : Long) : ProductModel
     fun updateProduct(command : UpdateProductCommand) : ProductModel
 }

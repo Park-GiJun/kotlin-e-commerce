@@ -1,4 +1,4 @@
-package com.gijun.kotlinecommerce.application.hadler.product
+package com.gijun.kotlinecommerce.application.handler.product
 
 import com.gijun.kotlinecommerce.application.dto.command.product.productCategory.CreateProductCategoryCommand
 import com.gijun.kotlinecommerce.application.dto.command.product.productCategory.UpdateProductCategoryCommand

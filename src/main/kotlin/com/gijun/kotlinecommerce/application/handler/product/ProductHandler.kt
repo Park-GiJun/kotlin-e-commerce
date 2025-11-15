@@ -1,7 +1,8 @@
-package com.gijun.kotlinecommerce.application.hadler.product
+package com.gijun.kotlinecommerce.application.handler.product
 
 import com.gijun.kotlinecommerce.application.dto.command.product.product.CreateProductCommand
 import com.gijun.kotlinecommerce.application.dto.command.product.product.UpdateProductCommand
+import com.gijun.kotlinecommerce.application.dto.result.product.GetProductListResult
 import com.gijun.kotlinecommerce.application.port.input.product.ProductUseCase
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductCategoryJpaPort
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductJpaPort
@@ -30,7 +31,9 @@ class ProductHandler(
     override fun getProductById(id: Long): ProductModel =
         validateProductExists(id)
 
-    override fun getAllProducts(): List<ProductModel> = productJpaPort.findAll()
+    override fun getAllProducts(): List<GetProductListResult> {
+      return
+    }
 
     override fun deleteProduct(id: Long): ProductModel {
         val product = validateProductExists(id)

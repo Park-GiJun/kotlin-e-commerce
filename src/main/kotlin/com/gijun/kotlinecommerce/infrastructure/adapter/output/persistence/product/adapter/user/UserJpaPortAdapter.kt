@@ -2,7 +2,7 @@ package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.prod
 
 import com.gijun.kotlinecommerce.application.port.output.persistence.user.UserJpaPort
 import com.gijun.kotlinecommerce.domain.user.model.UserModel
-import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.entity.user.UserJpaEntity
+import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.user.UserJpaEntity
 import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.repository.user.UserJpaRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component

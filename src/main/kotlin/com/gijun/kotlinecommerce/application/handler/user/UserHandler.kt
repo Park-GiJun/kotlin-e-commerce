@@ -1,4 +1,4 @@
-package com.gijun.kotlinecommerce.application.hadler.user
+package com.gijun.kotlinecommerce.application.handler.user
 
 import com.gijun.kotlinecommerce.application.dto.command.user.RegisterUserCommand
 import com.gijun.kotlinecommerce.application.port.input.user.UserUseCase
