@@ -1,4 +1,4 @@
-package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.entity.user
+package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.user
 
 import com.gijun.kotlinecommerce.domain.user.model.UserModel
 import com.gijun.kotlinecommerce.domain.user.model.UserRole
