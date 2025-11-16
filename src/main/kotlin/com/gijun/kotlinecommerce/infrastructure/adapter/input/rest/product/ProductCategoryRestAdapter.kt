@@ -2,6 +2,7 @@ package com.gijun.kotlinecommerce.infrastructure.adapter.input.rest.product
 
 import com.gijun.kotlinecommerce.application.dto.command.product.productCategory.CreateProductCategoryCommand
 import com.gijun.kotlinecommerce.application.dto.command.product.productCategory.UpdateProductCategoryCommand
+import com.gijun.kotlinecommerce.application.dto.result.product.GetProductCategoryHierarchyResult
 import com.gijun.kotlinecommerce.application.port.input.product.ProductCategoryUseCase
 import com.gijun.kotlinecommerce.domain.product.model.ProductCategoryModel
 import com.gijun.kotlinecommerce.infrastructure.adapter.input.rest.common.ApiResponse
@@ -34,6 +35,12 @@ class ProductCategoryRestAdapter(
     @Operation(summary = "Get all product categories")
     fun getAllProductCategories(): ApiResponse<List<ProductCategoryModel>> {
         return ApiResponse.success(productCategoryUseCase.getAllProductCategories())
+    }
+
+    @GetMapping("/hierarchies")
+    @Operation(summary = "Get product category hierarchies")
+    fun getProductCategoryHierarchies(): ApiResponse<List<GetProductCategoryHierarchyResult>> {
+        return ApiResponse.success(productCategoryUseCase.getProductCategoryHierarchies())
     }
 
     @PutMapping("/{id}")

@@ -3,7 +3,7 @@ package com.gijun.kotlinecommerce.application.dto.result.product
 import java.math.BigInteger
 import java.time.LocalDate
 
-data class GetProductListResult(
+data class GetProductResult(
     val productId : Long,
     val productName : String,
     val largeClassId: Long,

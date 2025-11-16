@@ -2,22 +2,29 @@ package com.gijun.kotlinecommerce.application.handler.product
 
 import com.gijun.kotlinecommerce.application.dto.command.product.product.CreateProductCommand
 import com.gijun.kotlinecommerce.application.dto.command.product.product.UpdateProductCommand
-import com.gijun.kotlinecommerce.application.dto.result.product.GetProductListResult
+import com.gijun.kotlinecommerce.application.dto.result.product.GetProductResult
 import com.gijun.kotlinecommerce.application.port.input.product.ProductUseCase
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductCategoryJpaPort
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductJpaPort
+import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductPriceJpaPort
+import com.gijun.kotlinecommerce.domain.common.PageRequest
+import com.gijun.kotlinecommerce.domain.common.PageResponse
 import com.gijun.kotlinecommerce.domain.common.validator.CommonValidators
 import com.gijun.kotlinecommerce.domain.product.exception.ProductCategoryNotFoundException
 import com.gijun.kotlinecommerce.domain.product.exception.ProductNotFoundException
 import com.gijun.kotlinecommerce.domain.product.exception.ProductValidationException
 import com.gijun.kotlinecommerce.domain.product.model.ProductCategoryModel
 import com.gijun.kotlinecommerce.domain.product.model.ProductModel
+import com.gijun.kotlinecommerce.domain.product.model.ProductPriceModel
 import org.springframework.stereotype.Service
+import java.math.BigInteger
+import java.time.LocalDate
 
 @Service
 class ProductHandler(
     private val productJpaPort: ProductJpaPort,
-    private val productCategoryJpaPort: ProductCategoryJpaPort
+    private val productCategoryJpaPort: ProductCategoryJpaPort,
+    private val productPriceJpaPort: ProductPriceJpaPort
 ) : ProductUseCase {
 
     override fun createProduct(command: CreateProductCommand): ProductModel {
@@ -31,8 +38,72 @@ class ProductHandler(
     override fun getProductById(id: Long): ProductModel =
         validateProductExists(id)
 
-    override fun getAllProducts(): List<GetProductListResult> {
-      return
+    override fun getAllProducts(pageRequest: PageRequest): PageResponse<GetProductResult> {
+        val (products, totalElements) = productJpaPort.findAllWithPaging(pageRequest)
+
+        val allCategories = productCategoryJpaPort.findAll().associateBy { it.id!! }
+
+        val productIds = products.mapNotNull { it.id }
+        val prices = productPriceJpaPort.findCurrentPricesByProductIds(productIds)
+
+        val results = products.map { product ->
+            buildProductListResult(product, allCategories, prices[product.id])
+        }
+
+        return PageResponse.of(results, pageRequest, totalElements)
+    }
+
+    override fun getProductsByCategory(categoryId: Long, pageRequest: PageRequest): PageResponse<GetProductResult> {
+        validateCategoryExists(categoryId)
+
+        val (products, totalElements) = productJpaPort.findByCategoryWithPaging(categoryId, pageRequest)
+
+        val allCategories = productCategoryJpaPort.findAll().associateBy { it.id!! }
+
+        val productIds = products.mapNotNull { it.id }
+        val prices = productPriceJpaPort.findCurrentPricesByProductIds(productIds)
+
+        val results = products.map { product ->
+            buildProductListResult(product, allCategories, prices[product.id])
+        }
+
+        return PageResponse.of(results, pageRequest, totalElements)
+    }
+
+    private fun buildProductListResult(
+        product: ProductModel,
+        allCategories: Map<Long, ProductCategoryModel>,
+        price: ProductPriceModel?
+    ): GetProductResult {
+        // Build category chain from bottom to top
+        val categoryChain = mutableListOf<ProductCategoryModel>()
+        var currentCategory = allCategories[product.categoryId]
+
+        while (currentCategory != null) {
+            categoryChain.add(0, currentCategory)
+            currentCategory = if (currentCategory.parentId != 0L) {
+                allCategories[currentCategory.parentId]
+            } else {
+                null
+            }
+        }
+
+        val depth = categoryChain.size
+
+        return GetProductResult(
+            productId = product.id!!,
+            productName = product.name,
+            largeClassId = categoryChain.getOrNull(0)?.id ?: 0L,
+            largeClassNAme = categoryChain.getOrNull(0)?.name ?: "",
+            mediumClassId = categoryChain.getOrNull(1)?.id,
+            mediumClassName = categoryChain.getOrNull(1)?.name,
+            smallClassId = categoryChain.getOrNull(2)?.id,
+            smallClassName = categoryChain.getOrNull(2)?.name,
+            categoryDepth = depth,
+            productPrice = price?.price?.toBigInteger() ?: BigInteger.ZERO,
+            priceStartDate = price?.startDate ?: LocalDate.now(),
+            priceEndDate = price?.endDate ?: LocalDate.parse("9999-12-31")
+        )
     }
 
     override fun deleteProduct(id: Long): ProductModel {

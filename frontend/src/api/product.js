@@ -1,8 +1,17 @@
 import axios from './axios'
 
 export const productAPI = {
-  async getAll() {
-    const response = await axios.get('/products')
+  async getAll(page = 0, size = 10) {
+    const response = await axios.get('/products', {
+      params: { page, size }
+    })
+    return response.data
+  },
+
+  async getByCategory(categoryId, page = 0, size = 10) {
+    const response = await axios.get(`/products/category/${categoryId}`, {
+      params: { page, size }
+    })
     return response.data
   },
 

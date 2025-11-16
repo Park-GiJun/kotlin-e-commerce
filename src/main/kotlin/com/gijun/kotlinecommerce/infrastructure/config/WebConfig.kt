@@ -9,7 +9,7 @@ class WebConfig : WebMvcConfigurer {
 
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/api/**")
-            .allowedOrigins("http://localhost:5173") // Vite default port
+            .allowedOrigins("http://localhost:5173", "http://localhost:5174") // Vite ports
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
             .allowedHeaders("*")
             .allowCredentials(true)
