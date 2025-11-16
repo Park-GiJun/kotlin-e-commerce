@@ -14,8 +14,8 @@ spring:
       fail-on-empty-beans: false
 
 jwt:
-  secret: mySecretKeyForJwtTokenGenerationAndValidationPleaseChangeThisInProduction
-  expiration: 86400000 # 24 hours in milliseconds
+  secret: ${JWT_SECRET:mySecretKeyForJwtTokenGenerationAndValidationPleaseChangeThisInProduction}
+  expiration: ${JWT_EXPIRATION:86400000} # 24 hours in milliseconds
 
 springdoc:
   swagger-ui:

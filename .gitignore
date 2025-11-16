@@ -45,6 +45,11 @@ out/
 /gradle/wrapper/gradle-wrapper.properties
 /.claude/settings.local.json
 
+### Environment Variables ###
+.env
+.env.local
+.env.*.local
+
 ### Frontend ###
 # Dependencies
 frontend/node_modules/
