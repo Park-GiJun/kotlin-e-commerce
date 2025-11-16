@@ -6,18 +6,23 @@ export const categoryAPI = {
     return response.data
   },
 
+  async getHierarchies() {
+    const response = await axios.get('/product-categories/hierarchies')
+    return response.data
+  },
+
   async getById(id) {
     const response = await axios.get(`/product-categories/${id}`)
     return response.data
   },
 
-  async create(name) {
-    const response = await axios.post('/product-categories', { name })
+  async create(name, parentId = null) {
+    const response = await axios.post('/product-categories', { name, parentId })
     return response.data
   },
 
-  async update(id, name) {
-    const response = await axios.put(`/product-categories/${id}`, { id, name })
+  async update(id, name, parentId = null) {
+    const response = await axios.put(`/product-categories/${id}`, { id, name, parentId })
     return response.data
   },
 

@@ -1,6 +1,7 @@
 package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.adapter.product
 
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductJpaPort
+import com.gijun.kotlinecommerce.domain.common.PageRequest
 import com.gijun.kotlinecommerce.domain.product.model.ProductModel
 import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.entity.product.ProductJpaEntity
 import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.repository.product.ProductJpaRepository
@@ -26,10 +27,35 @@ class ProductJpaPortAdapter(
         return productJpaRepository.findAll().map { it.toDomainModel() }
     }
 
+    override fun findAllWithPaging(pageRequest: PageRequest): Pair<List<ProductModel>, Long> {
+        val products = productJpaRepository.findAll()
+            .drop(pageRequest.getOffset().toInt())
+            .take(pageRequest.size)
+            .map { it.toDomainModel() }
+
+        val totalElements = productJpaRepository.count()
+
+        return Pair(products, totalElements)
+    }
+
     override fun findByCategory(categoryId: Long): List<ProductModel> {
         return productJpaRepository.findAll()
             .filter { it.productCategoryId == categoryId }
             .map { it.toDomainModel() }
+    }
+
+    override fun findByCategoryWithPaging(categoryId: Long, pageRequest: PageRequest): Pair<List<ProductModel>, Long> {
+        val allProducts = productJpaRepository.findAll()
+            .filter { it.productCategoryId == categoryId }
+
+        val products = allProducts
+            .drop(pageRequest.getOffset().toInt())
+            .take(pageRequest.size)
+            .map { it.toDomainModel() }
+
+        val totalElements = allProducts.size.toLong()
+
+        return Pair(products, totalElements)
     }
 
     override fun findById(id: Long): ProductModel? {

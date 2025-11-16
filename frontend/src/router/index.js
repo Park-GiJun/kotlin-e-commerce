@@ -8,6 +8,7 @@ import Products from '../views/Products.vue'
 import AdminUsers from '../views/AdminUsers.vue'
 import AdminProducts from '../views/AdminProducts.vue'
 import AdminCategories from '../views/AdminCategories.vue'
+import AdminProductPrices from '../views/AdminProductPrices.vue'
 
 const routes = [
   {
@@ -54,6 +55,12 @@ const routes = [
     path: '/admin/categories',
     name: 'AdminCategories',
     component: AdminCategories,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/product-prices',
+    name: 'AdminProductPrices',
+    component: AdminProductPrices,
     meta: { requiresAuth: true, requiresAdmin: true }
   }
 ]

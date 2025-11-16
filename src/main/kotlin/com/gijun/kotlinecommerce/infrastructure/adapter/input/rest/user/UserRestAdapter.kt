@@ -2,6 +2,8 @@ package com.gijun.kotlinecommerce.infrastructure.adapter.input.rest.user
 
 import com.gijun.kotlinecommerce.application.dto.command.user.RegisterUserCommand
 import com.gijun.kotlinecommerce.application.port.input.user.UserUseCase
+import com.gijun.kotlinecommerce.domain.common.PageRequest
+import com.gijun.kotlinecommerce.domain.common.PageResponse
 import com.gijun.kotlinecommerce.domain.user.exception.UserValidationException
 import com.gijun.kotlinecommerce.domain.user.model.UserModel
 import com.gijun.kotlinecommerce.infrastructure.adapter.input.rest.common.ApiResponse
@@ -39,6 +41,16 @@ class UserRestAdapter(
 
         val token = jwtTokenProvider.createToken(user.email)
         return ApiResponse.success(LoginResponse.of(token, user))
+    }
+
+    @GetMapping
+    @Operation(summary = "Get all users")
+    fun getAllUsers(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
+    ): ApiResponse<PageResponse<UserModel>> {
+        val pageRequest = PageRequest(page, size)
+        return ApiResponse.success(userUseCase.getAllUsers(pageRequest))
     }
 
     @GetMapping("/{email}")
