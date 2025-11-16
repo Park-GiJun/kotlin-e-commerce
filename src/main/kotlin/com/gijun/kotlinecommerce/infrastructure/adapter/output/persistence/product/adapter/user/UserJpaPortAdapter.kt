@@ -1,8 +1,10 @@
 package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.adapter.user
 
 import com.gijun.kotlinecommerce.application.port.output.persistence.user.UserJpaPort
+import com.gijun.kotlinecommerce.domain.common.PageRequest
+import com.gijun.kotlinecommerce.domain.common.PageResponse
 import com.gijun.kotlinecommerce.domain.user.model.UserModel
-import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.entity.user.UserJpaEntity
+import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.user.UserJpaEntity
 import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.repository.user.UserJpaRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -28,5 +30,16 @@ class UserJpaPortAdapter(
     override fun delete(userModel: UserModel): UserModel {
         userModel.id?.let { userJpaRepository.deleteById(it) }
         return userModel
+    }
+
+    override fun findAll(pageRequest: PageRequest): PageResponse<UserModel> {
+        val users = userJpaRepository.findAll()
+            .drop(pageRequest.getOffset().toInt())
+            .take(pageRequest.size)
+            .map { it.toDomainModel() }
+
+        val totalElements = userJpaRepository.count()
+
+        return PageResponse.of(users, pageRequest, totalElements)
     }
 }

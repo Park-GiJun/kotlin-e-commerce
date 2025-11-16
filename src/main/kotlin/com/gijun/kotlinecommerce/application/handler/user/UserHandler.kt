@@ -1,8 +1,10 @@
-package com.gijun.kotlinecommerce.application.hadler.user
+package com.gijun.kotlinecommerce.application.handler.user
 
 import com.gijun.kotlinecommerce.application.dto.command.user.RegisterUserCommand
 import com.gijun.kotlinecommerce.application.port.input.user.UserUseCase
 import com.gijun.kotlinecommerce.application.port.output.persistence.user.UserJpaPort
+import com.gijun.kotlinecommerce.domain.common.PageRequest
+import com.gijun.kotlinecommerce.domain.common.PageResponse
 import com.gijun.kotlinecommerce.domain.common.validator.CommonValidators
 import com.gijun.kotlinecommerce.domain.user.exception.UserAlreadyExistsException
 import com.gijun.kotlinecommerce.domain.user.exception.UserNotFoundException
@@ -47,6 +49,10 @@ class UserHandler(
         } else {
             null
         }
+    }
+
+    override fun getAllUsers(pageRequest: PageRequest): PageResponse<UserModel> {
+        return userJpaPort.findAll(pageRequest)
     }
 
     private fun validateUserExists(userId: String): UserModel {

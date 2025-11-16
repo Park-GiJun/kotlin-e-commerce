@@ -28,17 +28,19 @@ class SecurityConfig(
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
+            .cors { }
             .csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { authorize ->
                 authorize
-                    // Public endpoints
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers(
                         "/",
                         "/login.html",
                         "/register.html",
                         "/api/users/register",
                         "/api/users/login",
+                        "/api/products/search",
                         "/js/**",
                         "/css/**",
                         "/swagger-ui/**",

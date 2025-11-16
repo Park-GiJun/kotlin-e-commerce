@@ -1,6 +1,8 @@
 package com.gijun.kotlinecommerce.application.port.input.user
 
 import com.gijun.kotlinecommerce.application.dto.command.user.RegisterUserCommand
+import com.gijun.kotlinecommerce.domain.common.PageRequest
+import com.gijun.kotlinecommerce.domain.common.PageResponse
 import com.gijun.kotlinecommerce.domain.user.model.UserModel
 
 interface UserUseCase {
@@ -8,4 +10,5 @@ interface UserUseCase {
     fun deleteUser(userId: String) : Boolean
     fun getUserByEmail(email: String) : UserModel?
     fun login(email: String, password: String) : UserModel?
+    fun getAllUsers(pageRequest: PageRequest): PageResponse<UserModel>
 }
