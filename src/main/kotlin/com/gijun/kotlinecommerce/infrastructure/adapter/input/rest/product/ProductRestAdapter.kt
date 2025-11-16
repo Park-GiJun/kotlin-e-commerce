@@ -29,7 +29,7 @@ class ProductRestAdapter(
 
     @GetMapping("/{id}")
     @Operation(summary = "Get product by id")
-    fun getProductById(@PathVariable id: Long): ApiResponse<ProductModel> {
+    fun getProductById(@PathVariable id: Long): ApiResponse<GetProductResult> {
         return ApiResponse.success(productUseCase.getProductById(id))
     }
 

@@ -9,7 +9,7 @@ import com.gijun.kotlinecommerce.domain.product.model.ProductModel
 
 interface ProductUseCase {
     fun createProduct(command: CreateProductCommand) : ProductModel
-    fun getProductById(id : Long) : ProductModel
+    fun getProductById(id : Long) : GetProductResult
     fun getAllProducts(pageRequest: PageRequest) : PageResponse<GetProductResult>
     fun getProductsByCategory(categoryId: Long, pageRequest: PageRequest) : PageResponse<GetProductResult>
     fun deleteProduct(id : Long) : ProductModel

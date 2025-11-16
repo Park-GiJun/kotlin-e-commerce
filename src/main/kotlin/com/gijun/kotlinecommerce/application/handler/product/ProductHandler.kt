@@ -35,8 +35,13 @@ class ProductHandler(
         return productJpaPort.save(newProduct)
     }
 
-    override fun getProductById(id: Long): ProductModel =
-        validateProductExists(id)
+    override fun getProductById(id: Long): GetProductResult {
+        val product = validateProductExists(id)
+        val allCategories = productCategoryJpaPort.findAll().associateBy { it.id!! }
+        val price = productPriceJpaPort.findCurrentPricesByProductIds(listOf(product.id!!)).get(product.id)
+
+        return buildProductListResult(product, allCategories, price)
+    }
 
     override fun getAllProducts(pageRequest: PageRequest): PageResponse<GetProductResult> {
         val (products, totalElements) = productJpaPort.findAllWithPaging(pageRequest)

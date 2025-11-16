@@ -1,5 +1,8 @@
 <template>
-  <div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-200 overflow-hidden group cursor-pointer">
+  <router-link
+    :to="`/products/${product.productId}`"
+    class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-200 overflow-hidden group cursor-pointer block"
+  >
     <div class="aspect-square bg-gray-100 flex items-center justify-center relative overflow-hidden">
       <img
         v-if="product.imageUrl"
@@ -37,11 +40,14 @@
         </div>
         <span class="ml-1">({{ product.reviewCount || 0 }})</span>
       </div>
-      <button class="w-full bg-primary-500 hover:bg-primary-600 text-white py-2 rounded-lg transition-colors duration-200 font-medium">
+      <button
+        @click.prevent="addToCart"
+        class="w-full bg-primary-500 hover:bg-primary-600 text-white py-2 rounded-lg transition-colors duration-200 font-medium"
+      >
         장바구니에 담기
       </button>
     </div>
-  </div>
+  </router-link>
 </template>
 
 <script setup>
@@ -63,5 +69,9 @@ const getCategoryPath = (product) => {
 
 const formatPrice = (price) => {
   return (price || 0).toLocaleString('ko-KR')
+}
+
+const addToCart = () => {
+  alert('장바구니에 담았습니다!\n\n(장바구니 기능은 추후 구현 예정입니다)')
 }
 </script>

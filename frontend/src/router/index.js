@@ -5,6 +5,7 @@ import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Dashboard from '../views/Dashboard.vue'
 import Products from '../views/Products.vue'
+import ProductDetail from '../views/ProductDetail.vue'
 import AdminUsers from '../views/AdminUsers.vue'
 import AdminProducts from '../views/AdminProducts.vue'
 import AdminCategories from '../views/AdminCategories.vue'
@@ -37,6 +38,12 @@ const routes = [
     path: '/products',
     name: 'Products',
     component: Products,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/products/:id',
+    name: 'ProductDetail',
+    component: ProductDetail,
     meta: { requiresAuth: true }
   },
   {
