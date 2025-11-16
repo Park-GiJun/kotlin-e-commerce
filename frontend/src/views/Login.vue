@@ -49,6 +49,28 @@
             {{ loading ? '로그인 중...' : '로그인' }}
           </button>
 
+          <!-- Divider -->
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-300"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-2 bg-white text-gray-500">또는</span>
+            </div>
+          </div>
+
+          <!-- Admin Login Button -->
+          <button
+            type="button"
+            @click="handleAdminLogin"
+            :disabled="loading"
+            class="w-full flex justify-center items-center gap-2 py-3 px-4 border-2 border-gray-800 text-sm font-semibold rounded-lg text-gray-900 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            {{ loading ? '로그인 중...' : '어드민 로그인' }}
+          </button>
+
           <div class="text-center pt-4">
             <router-link to="/register" class="font-medium text-primary-600 hover:text-primary-500 transition-colors">
               계정이 없으신가요? <span class="underline">회원가입</span>
@@ -81,6 +103,21 @@ async function handleLogin() {
   error.value = ''
 
   const result = await authStore.login(form.value.email, form.value.password)
+
+  if (result.success) {
+    router.push('/dashboard')
+  } else {
+    error.value = result.message
+  }
+
+  loading.value = false
+}
+
+async function handleAdminLogin() {
+  loading.value = true
+  error.value = ''
+
+  const result = await authStore.login('admin@adminn.com', 'admin1234')
 
   if (result.success) {
     router.push('/dashboard')

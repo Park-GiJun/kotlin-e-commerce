@@ -2,7 +2,7 @@ import axios from 'axios'
 import router from '../router'
 
 const instance = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: 'http://210.121.177.150:9832//api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
