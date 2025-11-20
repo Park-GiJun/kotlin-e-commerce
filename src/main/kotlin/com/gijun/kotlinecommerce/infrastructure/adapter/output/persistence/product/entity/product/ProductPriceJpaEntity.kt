@@ -2,6 +2,7 @@ package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.prod
 
 import com.gijun.kotlinecommerce.domain.product.model.ProductPriceModel
 import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.common.BaseEntity
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -17,26 +18,34 @@ class ProductPriceJpaEntity(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
-    val productId: Long = 0,
-    val price: Double = 0.0,
-    val startDate: LocalDate?,
-    val endDate: LocalDate?,
+    val id: Long? = null,
+
+    @Column(nullable = false)
+    val productId: Long,
+
+    @Column(nullable = false)
+    val price: Double,
+
+    @Column(nullable = false)
+    val startDate: LocalDate,
+
+    @Column(nullable = false)
+    val endDate: LocalDate
 ) : BaseEntity() {
-    fun toDomainModel(): ProductPriceModel {
+    fun toDomain(): ProductPriceModel {
         return ProductPriceModel(
-            id = this.id,
-            productId = this.productId,
-            price = BigDecimal.valueOf(this.price),
-            startDate = this.startDate,
-            endDate = this.endDate
+            id = id,
+            productId = productId,
+            price = BigDecimal.valueOf(price),
+            startDate = startDate,
+            endDate = endDate
         )
     }
 
     companion object {
         fun fromDomain(model: ProductPriceModel): ProductPriceJpaEntity {
             return ProductPriceJpaEntity(
-                id = model.id ?: 0,
+                id = model.id,
                 productId = model.productId,
                 price = model.price.toDouble(),
                 startDate = model.startDate,

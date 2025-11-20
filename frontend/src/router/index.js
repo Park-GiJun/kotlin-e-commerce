@@ -6,6 +6,12 @@ import Register from '../views/Register.vue'
 import Dashboard from '../views/Dashboard.vue'
 import Products from '../views/Products.vue'
 import ProductDetail from '../views/ProductDetail.vue'
+import Cart from '../views/Cart.vue'
+import Checkout from '../views/Checkout.vue'
+import OrderHistory from '../views/OrderHistory.vue'
+import OrderDetail from '../views/OrderDetail.vue'
+import Profile from '../views/Profile.vue'
+import Wishlist from '../views/Wishlist.vue'
 import AdminUsers from '../views/AdminUsers.vue'
 import AdminProducts from '../views/AdminProducts.vue'
 import AdminCategories from '../views/AdminCategories.vue'
@@ -44,6 +50,42 @@ const routes = [
     path: '/products/:id',
     name: 'ProductDetail',
     component: ProductDetail,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/cart',
+    name: 'Cart',
+    component: Cart,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/checkout',
+    name: 'Checkout',
+    component: Checkout,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/orders',
+    name: 'OrderHistory',
+    component: OrderHistory,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/orders/:id',
+    name: 'OrderDetail',
+    component: OrderDetail,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: Profile,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/wishlist',
+    name: 'Wishlist',
+    component: Wishlist,
     meta: { requiresAuth: true }
   },
   {

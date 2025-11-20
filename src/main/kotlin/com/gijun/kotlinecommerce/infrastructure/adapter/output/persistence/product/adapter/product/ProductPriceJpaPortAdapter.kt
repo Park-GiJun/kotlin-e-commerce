@@ -20,33 +20,33 @@ class ProductPriceJpaPortAdapter(
 
         return productPriceJdslRepository
             .findCurrentPricesByProductIds(productIds, LocalDate.now())
-            .map { it.toDomainModel() }
+            .map { it.toDomain() }
     }
 
     override fun findAllCurrentPrices(): List<ProductPriceModel> {
         return productPriceJdslRepository
             .findProductPrice(LocalDate.now())
-            .map { it.toDomainModel() }
+            .map { it.toDomain() }
     }
 
     override fun findByProductId(productId: Long): List<ProductPriceModel> {
         return productPriceJpaRepository
             .findByProductId(productId)
-            .map { it.toDomainModel() }
+            .map { it.toDomain() }
     }
 
     override fun save(productPriceModel: ProductPriceModel): ProductPriceModel {
         val entity = ProductPriceJpaEntity.fromDomain(productPriceModel)
-        return productPriceJpaRepository.save(entity).toDomainModel()
+        return productPriceJpaRepository.save(entity).toDomain()
     }
 
     override fun findById(id: Long): ProductPriceModel? {
-        return productPriceJpaRepository.findByIdOrNull(id)?.toDomainModel()
+        return productPriceJpaRepository.findByIdOrNull(id)?.toDomain()
     }
 
     override fun update(productPriceModel: ProductPriceModel): ProductPriceModel {
         val entity = ProductPriceJpaEntity.fromDomain(productPriceModel)
-        return productPriceJpaRepository.save(entity).toDomainModel()
+        return productPriceJpaRepository.save(entity).toDomain()
     }
 
     override fun delete(productPriceModel: ProductPriceModel): ProductPriceModel {

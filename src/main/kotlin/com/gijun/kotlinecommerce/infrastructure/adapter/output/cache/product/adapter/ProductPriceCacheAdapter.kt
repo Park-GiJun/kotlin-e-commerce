@@ -14,14 +14,14 @@ class ProductPriceCacheAdapter(
     override fun findCurrentPriceByProductId(productId: Long): ProductPriceModel? {
         return productPriceCacheRepository
             .findByProductId(productId)
-            ?.toDomainModel()
+            ?.toDomain()
     }
 
     override fun findCurrentPricesByProductIds(productIds: List<Long>): List<ProductPriceModel> {
         return productPriceCacheRepository
             .findByProductIds(productIds)
             .values
-            .map { it.toDomainModel() }
+            .map { it.toDomain() }
     }
 
     override fun save(productPriceModel: ProductPriceModel): ProductPriceModel {
@@ -33,7 +33,7 @@ class ProductPriceCacheAdapter(
     override fun saveAll(productPriceModels: List<ProductPriceModel>): List<ProductPriceModel> {
         val entities = productPriceModels.map { ProductPriceCacheEntity.fromDomain(it) }
 
-        return productPriceCacheRepository.saveAll(entities).map { it.toDomainModel() }
+        return productPriceCacheRepository.saveAll(entities).map { it.toDomain() }
 
     }
 

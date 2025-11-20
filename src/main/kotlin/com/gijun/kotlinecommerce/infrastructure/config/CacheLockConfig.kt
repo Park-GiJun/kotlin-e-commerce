@@ -2,7 +2,7 @@ package com.gijun.kotlinecommerce.infrastructure.config
 
 import org.redisson.Redisson
 import org.redisson.api.RedissonClient
-import org.redisson.codec.JsonJacksonCodec
+import org.redisson.codec.Kryo5Codec
 import org.redisson.config.Config
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -22,7 +22,7 @@ class CacheLockConfig(
     @Bean
     fun redissonClient(): RedissonClient {
         val config = Config()
-        config.codec = JsonJacksonCodec()
+        config.codec = Kryo5Codec()
         config.useSingleServer()
             .setAddress("redis://$redisHost:$redisPort")
             .password = redisPassword
