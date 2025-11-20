@@ -117,7 +117,7 @@ async function handleAdminLogin() {
   loading.value = true
   error.value = ''
 
-  const result = await authStore.login('admin@adminn.com', 'admin1234')
+  const result = await authStore.login('admin@admin.com', 'admin1234')
 
   if (result.success) {
     router.push('/dashboard')

@@ -53,6 +53,7 @@ logging:
   level:
     com.gijun.kotlinecommerce.infrastructure.adapter.input.rest.common.LoggingAspect: INFO
     com.gijun.kotlinecommerce.infrastructure.adapter.input.rest.common.RequestLoggingFilter: INFO
+    com.gijun.kotlinecommerce.infrastructure.adapter.input.rest.common.GlobalExceptionHandler: INFO
     com.gijun.kotlinecommerce: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
