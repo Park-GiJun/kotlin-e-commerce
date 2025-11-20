@@ -12,13 +12,13 @@ data class ProductPriceCacheEntity(
     val endDate: String
 ) {
 
-    fun toDomainModel(): ProductPriceModel {
+    fun toDomain(): ProductPriceModel {
         return ProductPriceModel(
-            id = this.id,
-            productId = this.productId,
-            price = BigDecimal.valueOf(this.price),
-            startDate = LocalDate.parse(this.startDate),
-            endDate = LocalDate.parse(this.endDate)
+            id = id,
+            productId = productId,
+            price = BigDecimal.valueOf(price),
+            startDate = LocalDate.parse(startDate),
+            endDate = LocalDate.parse(endDate)
         )
     }
 

@@ -12,7 +12,7 @@ class ProductCategoryJpaEntity(
     @Column(name = "id")
     var id: Long? = null,
 
-    @Column(name = "parent_id", nullable = false)
+    @Column(name = "parent_id", nullable = true)
     var parentId: Long = 0L,
 
     @Column(name = "category_name", nullable = false, length = 100)

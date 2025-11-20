@@ -7,8 +7,8 @@ data class ProductPriceModel(
     val id: Long? = null,
     val productId: Long,
     val price: BigDecimal,
-    val startDate: LocalDate? = LocalDate.now(),
-    val endDate: LocalDate? = LocalDate.of(9999, 12 ,31)
+    val startDate: LocalDate,
+    val endDate: LocalDate
 ) {
     fun isCurrentlyValid(): Boolean {
         val today = LocalDate.now()
