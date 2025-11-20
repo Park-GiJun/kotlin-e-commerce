@@ -3,6 +3,7 @@ package com.gijun.kotlinecommerce.application.handler.product
 import com.gijun.kotlinecommerce.application.dto.command.product.productPrice.CreateProductPriceCommand
 import com.gijun.kotlinecommerce.application.dto.command.product.productPrice.UpdateProductPriceCommand
 import com.gijun.kotlinecommerce.application.port.input.product.ProductPriceUseCase
+import com.gijun.kotlinecommerce.application.port.output.cache.ProductPriceCachePort
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductJpaPort
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductPriceJpaPort
 import com.gijun.kotlinecommerce.domain.common.validator.CommonValidators
@@ -19,7 +20,8 @@ import java.time.LocalDate
 @Service
 class ProductPriceHandler(
     private val productPriceJpaPort: ProductPriceJpaPort,
-    private val productJpaPort: ProductJpaPort
+    private val productJpaPort: ProductJpaPort,
+    private val productPriceCachePort: ProductPriceCachePort
 ) : ProductPriceUseCase {
 
     override fun createProductPrice(command: CreateProductPriceCommand): ProductPriceModel {
@@ -39,7 +41,11 @@ class ProductPriceHandler(
             endDate = endDate
         )
 
-        return productPriceJpaPort.save(newProductPrice)
+        val savedProductPrice = productPriceJpaPort.save(newProductPrice)
+
+        productPriceCachePort.save(savedProductPrice)
+
+        return savedProductPrice
     }
 
     override fun updateProductPrice(command: UpdateProductPriceCommand): ProductPriceModel {
@@ -62,7 +68,20 @@ class ProductPriceHandler(
             endDate = endDate
         )
 
-        return productPriceJpaPort.update(updatedProductPrice)
+        val savedProductPrice = productPriceJpaPort.update(updatedProductPrice)
+
+        if (savedProductPrice.isCurrentlyValid()) {
+            productPriceCachePort.save(savedProductPrice)
+        } else {
+            productPriceCachePort.deleteByProductId(command.productId)
+        }
+
+        return savedProductPrice
+    }
+
+    override fun updateAllProductPriceByToDay(today: LocalDate): List<ProductPriceModel> {
+        val todayPrice = productPriceJpaPort.findAllCurrentPrices()
+        return productPriceCachePort.saveAll(todayPrice)
     }
 
     override fun getAllProductPrices(): List<ProductPriceModel> {
@@ -72,7 +91,17 @@ class ProductPriceHandler(
     override fun getProductPricesByProductId(productId: Long): List<ProductPriceModel> {
         CommonValidators.validatePositive(productId, "상품 ID")
         validateProductExists(productId)
-        return productPriceJpaPort.findByProductId(productId)
+
+        val cachedCurrentPrice = productPriceCachePort.findCurrentPriceByProductId(productId)
+
+        val allPrices = productPriceJpaPort.findByProductId(productId)
+
+        if (cachedCurrentPrice == null) {
+            val currentPrice = allPrices.firstOrNull { it.isCurrentlyValid() }
+            currentPrice?.let { productPriceCachePort.save(it) }
+        }
+
+        return allPrices
     }
 
     override fun getProductPriceById(id: Long): ProductPriceModel {
@@ -83,7 +112,12 @@ class ProductPriceHandler(
     override fun deleteProductPrice(id: Long): ProductPriceModel {
         CommonValidators.validatePositive(id, "상품 가격 ID")
         val productPrice = validateProductPriceExists(id)
-        return productPriceJpaPort.delete(productPrice)
+
+        val deletedProductPrice = productPriceJpaPort.delete(productPrice)
+
+        productPriceCachePort.deleteByProductId(deletedProductPrice.productId)
+
+        return deletedProductPrice
     }
 
     private fun validateProductExists(productId: Long): ProductModel {

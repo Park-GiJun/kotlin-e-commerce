@@ -7,11 +7,12 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import java.math.BigDecimal
 import java.time.LocalDate
 
 @Entity
-@Table(name = "product_price")
+@Table(name = "product_price", uniqueConstraints = [UniqueConstraint(columnNames = ["productId", "startDate"])])
 class ProductPriceJpaEntity(
 
     @Id
@@ -19,16 +20,16 @@ class ProductPriceJpaEntity(
     val id: Long = 0,
     val productId: Long = 0,
     val price: Double = 0.0,
-    val startDate: String = "",
-    val endDate: String = ""
+    val startDate: LocalDate?,
+    val endDate: LocalDate?,
 ) : BaseEntity() {
     fun toDomainModel(): ProductPriceModel {
         return ProductPriceModel(
             id = this.id,
             productId = this.productId,
             price = BigDecimal.valueOf(this.price),
-            startDate = LocalDate.parse(this.startDate),
-            endDate = LocalDate.parse(this.endDate)
+            startDate = this.startDate,
+            endDate = this.endDate
         )
     }
 
@@ -38,8 +39,8 @@ class ProductPriceJpaEntity(
                 id = model.id ?: 0,
                 productId = model.productId,
                 price = model.price.toDouble(),
-                startDate = model.startDate.toString(),
-                endDate = model.endDate.toString()
+                startDate = model.startDate,
+                endDate = model.endDate
             )
         }
     }
