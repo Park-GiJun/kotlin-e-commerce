@@ -3,27 +3,29 @@ package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.prod
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductPriceJpaPort
 import com.gijun.kotlinecommerce.domain.product.model.ProductPriceModel
 import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.entity.product.ProductPriceJpaEntity
+import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.repository.product.ProductPriceJdslRepository
 import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.repository.product.ProductPriceJpaRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 
 @Component
 class ProductPriceJpaPortAdapter(
-    private val productPriceJpaRepository: ProductPriceJpaRepository
+    private val productPriceJpaRepository: ProductPriceJpaRepository,
+    private val productPriceJdslRepository: ProductPriceJdslRepository
 ) : ProductPriceJpaPort {
 
-    override fun findCurrentPricesByProductIds(productIds: List<Long>): Map<Long, ProductPriceModel> {
-        if (productIds.isEmpty()) return emptyMap()
+    override fun findCurrentPricesByProductIds(productIds: List<Long>): List<ProductPriceModel> {
+        if (productIds.isEmpty()) return emptyList()
 
-        return productPriceJpaRepository
-            .findByProductIdInAndEndDate(productIds, CURRENT_PRICE_END_DATE)
+        return productPriceJdslRepository
+            .findCurrentPricesByProductIds(productIds, LocalDate.now())
             .map { it.toDomainModel() }
-            .associateBy { it.productId }
     }
 
     override fun findAllCurrentPrices(): List<ProductPriceModel> {
-        return productPriceJpaRepository
-            .findByEndDate(CURRENT_PRICE_END_DATE)
+        return productPriceJdslRepository
+            .findProductPrice(LocalDate.now())
             .map { it.toDomainModel() }
     }
 
@@ -50,9 +52,5 @@ class ProductPriceJpaPortAdapter(
     override fun delete(productPriceModel: ProductPriceModel): ProductPriceModel {
         productPriceModel.id?.let { productPriceJpaRepository.deleteById(it) }
         return productPriceModel
-    }
-
-    companion object {
-        private const val CURRENT_PRICE_END_DATE = "9999-12-31"
     }
 }

@@ -5,7 +5,7 @@ import com.gijun.kotlinecommerce.infrastructure.adapter.output.cache.product.uti
 import com.gijun.kotlinecommerce.infrastructure.adapter.output.cache.product.util.ProductPriceCacheKeyGenerator
 import org.redisson.api.RedissonClient
 import org.springframework.stereotype.Repository
-import java.util.concurrent.TimeUnit
+import java.time.Duration
 
 @Repository
 class ProductPriceCacheRepository(
@@ -40,8 +40,16 @@ class ProductPriceCacheRepository(
     ): ProductPriceCacheEntity {
         val key = productPriceCacheKeyGenerator.generateProductPriceKey(productId)
         val bucket = redissonClient.getBucket<ProductPriceCacheEntity>(key)
-        bucket.set(entity, ttlSeconds, TimeUnit.SECONDS)
+        bucket.set(entity, Duration.ofSeconds(ttlSeconds))
         return entity
+    }
+
+    fun saveAll(entities: List<ProductPriceCacheEntity>): List<ProductPriceCacheEntity> {
+        val result = mutableListOf<ProductPriceCacheEntity>()
+        entities.forEach {
+            result.add(save(it.productId, it))
+        }
+        return result
     }
 
     fun deleteByProductId(productId: Long): Boolean {
@@ -50,9 +58,6 @@ class ProductPriceCacheRepository(
         return bucket.delete()
     }
 
-    /**
-     * 캐시 존재 여부 확인
-     */
     fun exists(productId: Long): Boolean {
         val key = productPriceCacheKeyGenerator.generateProductPriceKey(productId)
         val bucket = redissonClient.getBucket<ProductPriceCacheEntity>(key)

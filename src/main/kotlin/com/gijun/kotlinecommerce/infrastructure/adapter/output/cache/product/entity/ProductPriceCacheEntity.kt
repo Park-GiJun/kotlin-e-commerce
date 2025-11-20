@@ -1,7 +1,6 @@
 package com.gijun.kotlinecommerce.infrastructure.adapter.output.cache.product.entity
 
 import com.gijun.kotlinecommerce.domain.product.model.ProductPriceModel
-import java.io.Serializable
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -11,7 +10,7 @@ data class ProductPriceCacheEntity(
     val price: Double,
     val startDate: String,
     val endDate: String
-) : Serializable {
+) {
 
     fun toDomainModel(): ProductPriceModel {
         return ProductPriceModel(

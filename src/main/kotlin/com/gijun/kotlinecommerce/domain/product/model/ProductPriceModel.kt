@@ -4,12 +4,17 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 data class ProductPriceModel(
-    val id : Long? = null,
+    val id: Long? = null,
     val productId: Long,
     val price: BigDecimal,
-    val startDate : LocalDate,
-    val endDate : LocalDate
+    val startDate: LocalDate? = LocalDate.now(),
+    val endDate: LocalDate? = LocalDate.of(9999, 12 ,31)
 ) {
+    fun isCurrentlyValid(): Boolean {
+        val today = LocalDate.now()
+        return !today.isBefore(startDate) && !today.isAfter(endDate)
+    }
+
     companion object {
         fun create(productId: Long, price: BigDecimal, startDate: LocalDate, endDate: LocalDate): ProductPriceModel {
             return ProductPriceModel(

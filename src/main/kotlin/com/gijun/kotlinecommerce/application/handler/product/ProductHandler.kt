@@ -4,6 +4,7 @@ import com.gijun.kotlinecommerce.application.dto.command.product.product.CreateP
 import com.gijun.kotlinecommerce.application.dto.command.product.product.UpdateProductCommand
 import com.gijun.kotlinecommerce.application.dto.result.product.GetProductResult
 import com.gijun.kotlinecommerce.application.port.input.product.ProductUseCase
+import com.gijun.kotlinecommerce.application.port.output.cache.ProductPriceCachePort
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductCategoryJpaPort
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductJpaPort
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductPriceJpaPort
@@ -24,7 +25,8 @@ import java.time.LocalDate
 class ProductHandler(
     private val productJpaPort: ProductJpaPort,
     private val productCategoryJpaPort: ProductCategoryJpaPort,
-    private val productPriceJpaPort: ProductPriceJpaPort
+    private val productPriceJpaPort: ProductPriceJpaPort,
+    private val productPriceCachePort: ProductPriceCachePort
 ) : ProductUseCase {
 
     override fun createProduct(command: CreateProductCommand): ProductModel {
@@ -38,7 +40,11 @@ class ProductHandler(
     override fun getProductById(id: Long): GetProductResult {
         val product = validateProductExists(id)
         val allCategories = productCategoryJpaPort.findAll().associateBy { it.id!! }
-        val price = productPriceJpaPort.findCurrentPricesByProductIds(listOf(product.id!!)).get(product.id)
+
+        val price = productPriceCachePort.findCurrentPriceByProductId(product.id!!)
+            ?: productPriceJpaPort.findCurrentPricesByProductIds(listOf(product.id))
+                .find { it.productId == product.id }
+                ?.also { productPriceCachePort.save(it) }
 
         return buildProductListResult(product, allCategories, price)
     }
@@ -49,7 +55,13 @@ class ProductHandler(
         val allCategories = productCategoryJpaPort.findAll().associateBy { it.id!! }
 
         val productIds = products.mapNotNull { it.id }
-        val prices = productPriceJpaPort.findCurrentPricesByProductIds(productIds)
+
+        val priceList = productPriceCachePort.findCurrentPricesByProductIds(productIds)
+            .takeIf { it.isNotEmpty() }
+            ?: productPriceJpaPort.findCurrentPricesByProductIds(productIds)
+                .also { productPriceCachePort.saveAll(it) }
+
+        val prices = priceList.associateBy { it.productId }
 
         val results = products.map { product ->
             buildProductListResult(product, allCategories, prices[product.id])
@@ -66,7 +78,13 @@ class ProductHandler(
         val allCategories = productCategoryJpaPort.findAll().associateBy { it.id!! }
 
         val productIds = products.mapNotNull { it.id }
-        val prices = productPriceJpaPort.findCurrentPricesByProductIds(productIds)
+
+        val priceList = productPriceCachePort.findCurrentPricesByProductIds(productIds)
+            .takeIf { it.isNotEmpty() }
+            ?: productPriceJpaPort.findCurrentPricesByProductIds(productIds)
+                .also { productPriceCachePort.saveAll(it) }
+
+        val prices = priceList.associateBy { it.productId }
 
         val results = products.map { product ->
             buildProductListResult(product, allCategories, prices[product.id])
@@ -80,7 +98,6 @@ class ProductHandler(
         allCategories: Map<Long, ProductCategoryModel>,
         price: ProductPriceModel?
     ): GetProductResult {
-        // Build category chain from bottom to top
         val categoryChain = mutableListOf<ProductCategoryModel>()
         var currentCategory = allCategories[product.categoryId]
 
