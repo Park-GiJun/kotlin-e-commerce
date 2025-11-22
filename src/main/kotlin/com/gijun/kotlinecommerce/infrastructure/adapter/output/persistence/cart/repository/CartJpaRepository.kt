@@ -4,4 +4,5 @@ import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.cart.
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface CartJpaRepository : JpaRepository<CartJpaEntity, Long> {
+    fun findByUserId(userId: Long): List<CartJpaEntity>
 }

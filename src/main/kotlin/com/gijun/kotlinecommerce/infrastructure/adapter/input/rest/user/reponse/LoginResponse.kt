@@ -1,4 +1,4 @@
-package com.gijun.kotlinecommerce.infrastructure.adapter.input.rest.user.dto
+package com.gijun.kotlinecommerce.infrastructure.adapter.input.rest.user.reponse
 
 import com.gijun.kotlinecommerce.domain.user.model.UserModel
 import com.gijun.kotlinecommerce.domain.user.model.UserRole

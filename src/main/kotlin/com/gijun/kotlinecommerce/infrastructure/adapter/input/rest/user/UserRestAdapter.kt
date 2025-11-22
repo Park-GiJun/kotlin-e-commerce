@@ -7,8 +7,8 @@ import com.gijun.kotlinecommerce.domain.common.PageResponse
 import com.gijun.kotlinecommerce.domain.user.exception.UserValidationException
 import com.gijun.kotlinecommerce.domain.user.model.UserModel
 import com.gijun.kotlinecommerce.infrastructure.adapter.input.rest.common.ApiResponse
-import com.gijun.kotlinecommerce.infrastructure.adapter.input.rest.user.dto.LoginRequest
-import com.gijun.kotlinecommerce.infrastructure.adapter.input.rest.user.dto.LoginResponse
+import com.gijun.kotlinecommerce.infrastructure.adapter.input.rest.user.request.LoginRequest
+import com.gijun.kotlinecommerce.infrastructure.adapter.input.rest.user.reponse.LoginResponse
 import com.gijun.kotlinecommerce.infrastructure.security.JwtTokenProvider
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement

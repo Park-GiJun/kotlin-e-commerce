@@ -34,15 +34,17 @@ class SecurityConfig(
             .authorizeHttpRequests { authorize ->
                 authorize
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                    // 공개 리소스
                     .requestMatchers(
                         "/",
+                        "/index.html",
                         "/login.html",
                         "/register.html",
                         "/api/users/register",
                         "/api/users/login",
-                        "/api/products/search",
                         "/js/**",
                         "/css/**",
+                        "/assets/**",
                         "/swagger-ui/**",
                         "/swagger-ui.html",
                         "/v3/api-docs/**",
@@ -51,18 +53,26 @@ class SecurityConfig(
                         "/swagger-config/**",
                         "/webjars/**"
                     ).permitAll()
-                    // Product READ - All authenticated users
-                    .requestMatchers(HttpMethod.GET, "/api/products/**").authenticated()
+                    // Product READ - 비로그인도 접근 가능 (공개)
+                    .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                     // Product CUD - ADMIN only
                     .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
-                    // Product Category READ - All authenticated users
-                    .requestMatchers(HttpMethod.GET, "/api/product-categories/**").authenticated()
+                    // Product Category READ - 비로그인도 접근 가능 (공개)
+                    .requestMatchers(HttpMethod.GET, "/api/product-categories/**").permitAll()
                     // Product Category CUD - ADMIN only
                     .requestMatchers(HttpMethod.POST, "/api/product-categories/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/api/product-categories/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/api/product-categories/**").hasRole("ADMIN")
+                    // Product Price READ - 비로그인도 접근 가능 (공개)
+                    .requestMatchers(HttpMethod.GET, "/api/product-prices/**").permitAll()
+                    // Product Price CUD - ADMIN only
+                    .requestMatchers(HttpMethod.POST, "/api/product-prices/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/product-prices/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/product-prices/**").hasRole("ADMIN")
+                    // Cart - 로그인 필요
+                    .requestMatchers("/api/carts/**").authenticated()
                     // All other requests - authenticated
                     .anyRequest().authenticated()
             }
