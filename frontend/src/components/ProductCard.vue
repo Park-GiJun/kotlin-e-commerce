@@ -42,16 +42,21 @@
       </div>
       <button
         @click.prevent="addToCart"
-        class="w-full bg-primary-500 hover:bg-primary-600 text-white py-2 rounded-lg transition-colors duration-200 font-medium"
+        :disabled="isLoading"
+        class="w-full bg-primary-500 hover:bg-primary-600 disabled:bg-gray-400 text-white py-2 rounded-lg transition-colors duration-200 font-medium"
       >
-        장바구니에 담기
+        <span v-if="isLoading">추가 중...</span>
+        <span v-else>장바구니에 담기</span>
       </button>
     </div>
   </router-link>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useCartStore } from '../stores/cart'
+import { useAuthStore } from '../stores/auth'
 
 const props = defineProps({
   product: {
@@ -59,6 +64,11 @@ const props = defineProps({
     required: true
   }
 })
+
+const router = useRouter()
+const cartStore = useCartStore()
+const authStore = useAuthStore()
+const isLoading = ref(false)
 
 const getCategoryPath = (product) => {
   const parts = [product.largeClassNAme]
@@ -71,7 +81,24 @@ const formatPrice = (price) => {
   return (price || 0).toLocaleString('ko-KR')
 }
 
-const addToCart = () => {
-  alert('장바구니에 담았습니다!\n\n(장바구니 기능은 추후 구현 예정입니다)')
+const addToCart = async () => {
+  if (!authStore.isLoggedIn) {
+    alert('로그인이 필요합니다.')
+    router.push('/login')
+    return
+  }
+
+  isLoading.value = true
+  try {
+    await cartStore.addToCart({
+      id: props.product.productId,
+      productId: props.product.productId
+    }, 1)
+    alert('장바구니에 담았습니다!')
+  } catch (e) {
+    alert('장바구니 추가에 실패했습니다: ' + (e.response?.data?.message || e.message))
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>

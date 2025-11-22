@@ -131,22 +131,26 @@
             <div class="space-y-3">
               <button
                 @click="addToCart"
-                class="w-full py-3 rounded-lg font-bold text-white transition-all hover:opacity-90 shadow-md"
+                :disabled="isAddingToCart"
+                class="w-full py-3 rounded-lg font-bold text-white transition-all hover:opacity-90 shadow-md disabled:opacity-50"
                 style="background-color: #fbbf24;"
               >
                 <span class="flex items-center justify-center gap-2">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg v-if="!isAddingToCart" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
-                  장바구니에 담기
+                  <span v-if="isAddingToCart">추가 중...</span>
+                  <span v-else>장바구니에 담기</span>
                 </span>
               </button>
               <button
                 @click="buyNow"
-                class="w-full py-3 rounded-lg font-bold text-white transition-all hover:opacity-90 shadow-md"
+                :disabled="isAddingToCart"
+                class="w-full py-3 rounded-lg font-bold text-white transition-all hover:opacity-90 shadow-md disabled:opacity-50"
                 style="background-color: #f97316;"
               >
-                지금 구매하기
+                <span v-if="isAddingToCart">처리 중...</span>
+                <span v-else>지금 구매하기</span>
               </button>
             </div>
 
@@ -313,15 +317,21 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { productAPI } from '../api/product'
+import { useCartStore } from '../stores/cart'
+import { useAuthStore } from '../stores/auth'
 import Layout from '../components/Layout.vue'
 
 const route = useRoute()
+const router = useRouter()
+const cartStore = useCartStore()
+const authStore = useAuthStore()
 const product = ref(null)
 const loading = ref(true)
 const quantity = ref(1)
 const activeTab = ref('description')
+const isAddingToCart = ref(false)
 
 const tabs = [
   { id: 'description', label: '상품 설명' },
@@ -419,12 +429,46 @@ function decreaseQuantity() {
   }
 }
 
-function addToCart() {
-  alert(`${quantity.value}개를 장바구니에 담았습니다!\n\n(장바구니 기능은 추후 구현 예정입니다)`)
+async function addToCart() {
+  if (!authStore.isLoggedIn) {
+    alert('로그인이 필요합니다.')
+    router.push('/login')
+    return
+  }
+
+  isAddingToCart.value = true
+  try {
+    await cartStore.addToCart({
+      id: product.value.productId,
+      productId: product.value.productId
+    }, quantity.value)
+    alert(`${quantity.value}개를 장바구니에 담았습니다!`)
+  } catch (e) {
+    alert('장바구니 추가에 실패했습니다: ' + (e.response?.data?.message || e.message))
+  } finally {
+    isAddingToCart.value = false
+  }
 }
 
-function buyNow() {
-  alert(`${quantity.value}개 구매하기\n총 ${formatPrice(Number(product.value.productPrice) * quantity.value)}원\n\n(구매 기능은 추후 구현 예정입니다)`)
+async function buyNow() {
+  if (!authStore.isLoggedIn) {
+    alert('로그인이 필요합니다.')
+    router.push('/login')
+    return
+  }
+
+  isAddingToCart.value = true
+  try {
+    await cartStore.addToCart({
+      id: product.value.productId,
+      productId: product.value.productId
+    }, quantity.value)
+    router.push('/checkout')
+  } catch (e) {
+    alert('장바구니 추가에 실패했습니다: ' + (e.response?.data?.message || e.message))
+  } finally {
+    isAddingToCart.value = false
+  }
 }
 
 function getReviewPercentage(star) {
