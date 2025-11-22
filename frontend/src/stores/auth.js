@@ -8,6 +8,7 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref(JSON.parse(localStorage.getItem('user_info') || 'null'))
 
   const isAuthenticated = computed(() => !!token.value)
+  const isLoggedIn = computed(() => !!token.value) // alias for isAuthenticated
   const isAdmin = computed(() => user.value?.role === 'ADMIN')
 
   async function login(email, password) {
@@ -62,6 +63,7 @@ export const useAuthStore = defineStore('auth', () => {
     token,
     user,
     isAuthenticated,
+    isLoggedIn,
     isAdmin,
     login,
     register,

@@ -22,36 +22,38 @@ const routes = [
     path: '/',
     redirect: '/dashboard'
   },
+  // 비로그인 접근 가능 (공개 페이지)
   {
     path: '/login',
     name: 'Login',
     component: Login,
-    meta: { requiresAuth: false }
+    meta: { guest: true } // 로그인 시 대시보드로 리다이렉트
   },
   {
     path: '/register',
     name: 'Register',
     component: Register,
-    meta: { requiresAuth: false }
+    meta: { guest: true }
   },
   {
     path: '/dashboard',
     name: 'Dashboard',
     component: Dashboard,
-    meta: { requiresAuth: true }
+    meta: { public: true } // 비로그인도 접근 가능
   },
   {
     path: '/products',
     name: 'Products',
     component: Products,
-    meta: { requiresAuth: true }
+    meta: { public: true }
   },
   {
     path: '/products/:id',
     name: 'ProductDetail',
     component: ProductDetail,
-    meta: { requiresAuth: true }
+    meta: { public: true }
   },
+  // 로그인 필요 (회원 전용)
   {
     path: '/cart',
     name: 'Cart',
@@ -88,6 +90,7 @@ const routes = [
     component: Wishlist,
     meta: { requiresAuth: true }
   },
+  // 관리자 전용
   {
     path: '/admin/users',
     name: 'AdminUsers',
@@ -123,15 +126,25 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
+  // 관리자 페이지 - 관리자 권한 필요
+  if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    next('/dashboard')
+    return
+  }
+
+  // 로그인 필요 페이지 - 비로그인 시 로그인으로 이동
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/login')
-  } else if (to.meta.requiresAdmin && !authStore.isAdmin) {
-    next('/dashboard')
-  } else if ((to.path === '/login' || to.path === '/register') && authStore.isAuthenticated) {
-    next('/dashboard')
-  } else {
-    next()
+    return
   }
+
+  // 게스트 전용 페이지 (로그인/회원가입) - 로그인 시 대시보드로 이동
+  if (to.meta.guest && authStore.isAuthenticated) {
+    next('/dashboard')
+    return
+  }
+
+  next()
 })
 
 export default router

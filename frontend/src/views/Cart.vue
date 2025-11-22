@@ -7,8 +7,38 @@
         <p class="mt-2 text-gray-600">총 {{ cartStore.itemCount }}개의 상품</p>
       </div>
 
+      <!-- Loading State -->
+      <div v-if="cartStore.loading" class="text-center py-16">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"></div>
+        <p class="mt-4 text-gray-600">장바구니를 불러오는 중...</p>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="cartStore.error" class="text-center py-16">
+        <svg class="mx-auto h-24 w-24 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <h3 class="mt-4 text-lg font-medium text-gray-900">오류가 발생했습니다</h3>
+        <p class="mt-2 text-gray-600">{{ cartStore.error }}</p>
+        <button @click="loadCart" class="mt-6 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700">
+          다시 시도
+        </button>
+      </div>
+
+      <!-- Not Logged In State -->
+      <div v-else-if="!authStore.isLoggedIn" class="text-center py-16">
+        <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+        <h3 class="mt-4 text-lg font-medium text-gray-900">로그인이 필요합니다</h3>
+        <p class="mt-2 text-gray-600">장바구니를 이용하려면 로그인해주세요</p>
+        <router-link to="/login" class="mt-6 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700">
+          로그인하기
+        </router-link>
+      </div>
+
       <!-- Empty State -->
-      <div v-if="cartStore.items.length === 0" class="text-center py-16">
+      <div v-else-if="cartStore.items.length === 0" class="text-center py-16">
         <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
         </svg>
@@ -44,7 +74,7 @@
                         <h3 class="text-lg font-medium text-gray-900">{{ item.name }}</h3>
                         <p v-if="item.categoryName" class="mt-1 text-sm text-gray-500">{{ item.categoryName }}</p>
                       </div>
-                      <button @click="cartStore.removeFromCart(item.id)" class="ml-4 text-gray-400 hover:text-red-600">
+                      <button @click="removeItem(item.id)" :disabled="isUpdating" class="ml-4 text-gray-400 hover:text-red-600 disabled:opacity-50">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -55,16 +85,18 @@
                       <!-- Quantity Controls -->
                       <div class="flex items-center space-x-3">
                         <button
-                          @click="cartStore.updateQuantity(item.id, item.quantity - 1)"
-                          class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50">
+                          @click="updateItemQuantity(item.id, item.quantity - 1)"
+                          :disabled="isUpdating"
+                          class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50">
                           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
                           </svg>
                         </button>
                         <span class="text-gray-900 font-medium w-12 text-center">{{ item.quantity }}</span>
                         <button
-                          @click="cartStore.updateQuantity(item.id, item.quantity + 1)"
-                          class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50">
+                          @click="updateItemQuantity(item.id, item.quantity + 1)"
+                          :disabled="isUpdating"
+                          class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50">
                           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                           </svg>
@@ -117,7 +149,8 @@
 
             <button
               @click="goToCheckout"
-              class="w-full mt-6 px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors">
+              :disabled="isUpdating"
+              class="w-full mt-6 px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50">
               주문하기
             </button>
 
@@ -134,18 +167,49 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart'
+import { useAuthStore } from '../stores/auth'
 import Layout from '../components/Layout.vue'
 
 const router = useRouter()
 const cartStore = useCartStore()
+const authStore = useAuthStore()
+const isUpdating = ref(false)
 
 // Shipping fee calculation (free shipping over 50,000 won)
 const shippingFee = computed(() => {
   return cartStore.totalPrice >= 50000 ? 0 : 3000
 })
+
+onMounted(async () => {
+  await loadCart()
+})
+
+async function loadCart() {
+  if (authStore.isLoggedIn) {
+    await cartStore.fetchCart()
+  }
+}
+
+async function updateItemQuantity(productId, newQuantity) {
+  isUpdating.value = true
+  try {
+    await cartStore.updateQuantity(productId, newQuantity)
+  } finally {
+    isUpdating.value = false
+  }
+}
+
+async function removeItem(productId) {
+  isUpdating.value = true
+  try {
+    await cartStore.removeFromCart(productId)
+  } finally {
+    isUpdating.value = false
+  }
+}
 
 function goToCheckout() {
   router.push('/checkout')
