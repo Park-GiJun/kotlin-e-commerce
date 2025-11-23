@@ -1,4 +1,4 @@
-package com.gijun.kotlinecommerce.application.dto.result.product
+package com.gijun.kotlinecommerce.application.dto.result.product.product
 
 import java.math.BigInteger
 import java.time.LocalDate

@@ -1,4 +1,4 @@
-package com.gijun.kotlinecommerce.application.dto.result.product
+package com.gijun.kotlinecommerce.application.dto.result.product.productCategory
 
 class GetProductCategoryHierarchyResult {
     var id: Long = 0

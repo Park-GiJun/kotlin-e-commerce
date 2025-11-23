@@ -25,8 +25,8 @@ export default defineConfig({
     ],
     proxy: {
       '/api': {
-        // target: 'http://210.121.177.150:9832',
-        target: 'http://localhost:9832',
+        target: 'http://210.121.177.150:9832',
+        // target: 'http://localhost:9832',
         changeOrigin: true,
         secure: false
       }

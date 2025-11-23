@@ -1,10 +1,10 @@
-package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.adapter.product
+package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.adapter
 
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductPriceJpaPort
 import com.gijun.kotlinecommerce.domain.product.model.ProductPriceModel
-import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.entity.product.ProductPriceJpaEntity
-import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.repository.product.ProductPriceJdslRepository
-import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.repository.product.ProductPriceJpaRepository
+import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.entity.ProductPriceJpaEntity
+import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.repository.ProductPriceJdslRepository
+import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.repository.ProductPriceJpaRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import java.time.LocalDate

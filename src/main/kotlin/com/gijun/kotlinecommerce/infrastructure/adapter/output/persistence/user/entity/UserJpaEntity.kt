@@ -1,9 +1,16 @@
-package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.user
+package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.user.entity
 
 import com.gijun.kotlinecommerce.domain.user.model.UserModel
 import com.gijun.kotlinecommerce.domain.user.model.UserRole
 import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.common.BaseEntity
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 
 @Entity
 @Table(name = "user")

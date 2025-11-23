@@ -1,9 +1,9 @@
 package com.gijun.kotlinecommerce.infrastructure.adapter.input.rest.cart.request
 
-import com.gijun.kotlinecommerce.domain.cart.model.CartAction
+import com.gijun.kotlinecommerce.domain.common.eunms.Action
 
 data class CartUpdateRequest(
     val productId: Long,
     val qty: Int,
-    val action: CartAction
+    val action: Action
 )

@@ -1,11 +1,11 @@
-package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.adapter.user
+package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.user.adapter
 
 import com.gijun.kotlinecommerce.application.port.output.persistence.user.UserJpaPort
 import com.gijun.kotlinecommerce.domain.common.PageRequest
 import com.gijun.kotlinecommerce.domain.common.PageResponse
 import com.gijun.kotlinecommerce.domain.user.model.UserModel
-import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.user.UserJpaEntity
-import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.repository.user.UserJpaRepository
+import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.user.repository.UserJpaRepository
+import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.user.entity.UserJpaEntity
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
@@ -15,7 +15,7 @@ class UserJpaPortAdapter(
 ) : UserJpaPort {
 
     override fun save(userModel: UserModel): UserModel {
-        val entity = UserJpaEntity.fromDomain(userModel)
+        val entity = UserJpaEntity.Companion.fromDomain(userModel)
         return userJpaRepository.save(entity).toDomainModel()
     }
 
@@ -40,6 +40,6 @@ class UserJpaPortAdapter(
 
         val totalElements = userJpaRepository.count()
 
-        return PageResponse.of(users, pageRequest, totalElements)
+        return PageResponse.Companion.of(users, pageRequest, totalElements)
     }
 }

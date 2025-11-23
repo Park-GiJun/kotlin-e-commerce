@@ -1,6 +1,6 @@
-package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.repository.product
+package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.repository
 
-import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.entity.product.ProductPriceJpaEntity
+import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.entity.ProductPriceJpaEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import java.time.LocalDate
 
