@@ -5,14 +5,14 @@
       <div class="bg-white border-b px-6 py-4 flex-shrink-0">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
           <div>
-            <h1 class="text-xl font-bold text-gray-900">Product Management</h1>
-            <p class="text-sm text-gray-500">Manage products, prices, and inventory</p>
+            <h1 class="text-xl font-bold text-gray-900">상품 관리</h1>
+            <p class="text-sm text-gray-500">상품, 가격, 재고를 관리합니다</p>
           </div>
           <button @click="createNewProduct()" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            Add Product
+            상품 추가
           </button>
         </div>
       </div>
@@ -27,7 +27,7 @@
                 <input
                   type="text"
                   v-model="searchQuery"
-                  placeholder="Search products..."
+                  placeholder="상품 검색..."
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 />
               </div>
@@ -43,14 +43,14 @@
                   <div class="text-sm font-semibold text-teal-600 mt-1">{{ formatPrice(product.productPrice) }}</div>
                 </div>
                 <div v-if="!filteredProducts.length" class="px-4 py-8 text-center text-gray-500">
-                  <p class="text-sm">No products found</p>
+                  <p class="text-sm">상품이 없습니다</p>
                 </div>
               </div>
               <div v-if="totalPages > 1" class="px-4 py-2 border-t bg-gray-50 flex items-center justify-between text-sm">
-                <span class="text-gray-600">Page {{ currentPage + 1 }} / {{ totalPages }}</span>
+                <span class="text-gray-600">{{ currentPage + 1 }} / {{ totalPages }} 페이지</span>
                 <div class="flex gap-2">
-                  <button @click="prevPage" :disabled="currentPage === 0" class="px-2 py-1 bg-white border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">Prev</button>
-                  <button @click="nextPage" :disabled="currentPage >= totalPages - 1" class="px-2 py-1 bg-white border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+                  <button @click="prevPage" :disabled="currentPage === 0" class="px-2 py-1 bg-white border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">이전</button>
+                  <button @click="nextPage" :disabled="currentPage >= totalPages - 1" class="px-2 py-1 bg-white border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">다음</button>
                 </div>
               </div>
             </div>
@@ -75,21 +75,21 @@
                 <div v-if="activeTab === 'info'">
                   <div v-if="selectedProduct || isCreating" class="space-y-4">
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">상품명</label>
                       <input
                         v-model="form.name"
                         type="text"
-                        placeholder="Enter product name"
+                        placeholder="상품명을 입력하세요"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                       />
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">카테고리</label>
                       <select
                         v-model="form.categoryId"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                       >
-                        <option value="">Select Category</option>
+                        <option value="">카테고리 선택</option>
                         <option v-for="cat in flatCategories" :key="cat.id" :value="cat.id">
                           {{ '  '.repeat(cat.depth) }}{{ cat.depth > 0 ? '└ ' : '' }}{{ cat.name }}
                         </option>
@@ -97,13 +97,13 @@
                     </div>
                     <div class="flex gap-3 pt-4">
                       <button @click="saveProduct" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-lg font-medium transition-colors">
-                        Save
+                        저장
                       </button>
                       <button v-if="editMode" @click="deleteProduct(selectedProduct.productId)" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition-colors">
-                        Delete
+                        삭제
                       </button>
                       <button @click="clearSelection" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg font-medium transition-colors">
-                        Cancel
+                        취소
                       </button>
                     </div>
                   </div>
@@ -111,7 +111,7 @@
                     <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                     </svg>
-                    <p>Select a product or create new one</p>
+                    <p>상품을 선택하거나 새로 추가하세요</p>
                   </div>
                 </div>
 
@@ -119,22 +119,22 @@
                 <div v-if="activeTab === 'price'">
                   <div v-if="selectedProduct" class="space-y-4">
                     <div class="bg-teal-50 rounded-lg p-4 mb-4">
-                      <div class="text-sm text-teal-700">Current Product</div>
+                      <div class="text-sm text-teal-700">선택된 상품</div>
                       <div class="font-bold text-teal-900">{{ selectedProduct.productName }}</div>
                     </div>
 
                     <!-- Current Price -->
                     <div class="bg-gray-50 rounded-lg p-4">
-                      <div class="text-sm text-gray-600 mb-1">Current Price</div>
+                      <div class="text-sm text-gray-600 mb-1">현재 가격</div>
                       <div class="text-2xl font-bold text-gray-900">{{ formatPrice(selectedProduct.productPrice) }}</div>
                     </div>
 
                     <!-- Add New Price -->
                     <div class="border rounded-lg p-4 space-y-3">
-                      <h3 class="font-medium text-gray-900">Set New Price</h3>
+                      <h3 class="font-medium text-gray-900">새 가격 설정</h3>
                       <div class="grid grid-cols-3 gap-4">
                         <div>
-                          <label class="block text-xs text-gray-600 mb-1">Price</label>
+                          <label class="block text-xs text-gray-600 mb-1">가격</label>
                           <input
                             v-model.number="priceForm.price"
                             type="number"
@@ -143,7 +143,7 @@
                           />
                         </div>
                         <div>
-                          <label class="block text-xs text-gray-600 mb-1">Start Date</label>
+                          <label class="block text-xs text-gray-600 mb-1">시작일</label>
                           <input
                             v-model="priceForm.startDate"
                             type="date"
@@ -151,7 +151,7 @@
                           />
                         </div>
                         <div>
-                          <label class="block text-xs text-gray-600 mb-1">End Date</label>
+                          <label class="block text-xs text-gray-600 mb-1">종료일</label>
                           <input
                             v-model="priceForm.endDate"
                             type="date"
@@ -160,21 +160,21 @@
                         </div>
                       </div>
                       <button @click="savePrice" class="w-full bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-lg font-medium text-sm transition-colors">
-                        Save Price
+                        가격 저장
                       </button>
                     </div>
 
                     <!-- Price History (Dummy) -->
                     <div>
-                      <h3 class="font-medium text-gray-900 mb-3">Price History</h3>
+                      <h3 class="font-medium text-gray-900 mb-3">가격 이력</h3>
                       <div class="border rounded-lg overflow-hidden">
                         <table class="w-full text-sm">
                           <thead class="bg-gray-50">
                             <tr>
-                              <th class="px-4 py-2 text-left text-gray-600">Price</th>
-                              <th class="px-4 py-2 text-left text-gray-600">Start</th>
-                              <th class="px-4 py-2 text-left text-gray-600">End</th>
-                              <th class="px-4 py-2 text-left text-gray-600">Status</th>
+                              <th class="px-4 py-2 text-left text-gray-600">가격</th>
+                              <th class="px-4 py-2 text-left text-gray-600">시작일</th>
+                              <th class="px-4 py-2 text-left text-gray-600">종료일</th>
+                              <th class="px-4 py-2 text-left text-gray-600">상태</th>
                             </tr>
                           </thead>
                           <tbody class="divide-y">
@@ -184,7 +184,7 @@
                               <td class="px-4 py-2 text-gray-600">{{ history.endDate }}</td>
                               <td class="px-4 py-2">
                                 <span :class="['px-2 py-0.5 rounded text-xs font-medium', history.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600']">
-                                  {{ history.active ? 'Active' : 'Expired' }}
+                                  {{ history.active ? '적용중' : '만료' }}
                                 </span>
                               </td>
                             </tr>
@@ -194,7 +194,7 @@
                     </div>
                   </div>
                   <div v-else class="text-center py-12 text-gray-500">
-                    <p>Select a product to manage prices</p>
+                    <p>가격을 관리할 상품을 선택하세요</p>
                   </div>
                 </div>
 
@@ -202,74 +202,74 @@
                 <div v-if="activeTab === 'stock'">
                   <div v-if="selectedProduct" class="space-y-4">
                     <div class="bg-teal-50 rounded-lg p-4 mb-4">
-                      <div class="text-sm text-teal-700">Current Product</div>
+                      <div class="text-sm text-teal-700">선택된 상품</div>
                       <div class="font-bold text-teal-900">{{ selectedProduct.productName }}</div>
                     </div>
 
                     <!-- Current Stock -->
                     <div class="grid grid-cols-3 gap-4">
                       <div class="bg-gray-50 rounded-lg p-4">
-                        <div class="text-sm text-gray-600 mb-1">Available Stock</div>
+                        <div class="text-sm text-gray-600 mb-1">가용 재고</div>
                         <div class="text-2xl font-bold text-gray-900">{{ stockForm.quantity }}</div>
                       </div>
                       <div class="bg-yellow-50 rounded-lg p-4">
-                        <div class="text-sm text-yellow-700 mb-1">Reserved</div>
+                        <div class="text-sm text-yellow-700 mb-1">예약됨</div>
                         <div class="text-2xl font-bold text-yellow-900">{{ stockForm.reserved }}</div>
                       </div>
                       <div class="bg-blue-50 rounded-lg p-4">
-                        <div class="text-sm text-blue-700 mb-1">Total</div>
+                        <div class="text-sm text-blue-700 mb-1">전체</div>
                         <div class="text-2xl font-bold text-blue-900">{{ stockForm.quantity + stockForm.reserved }}</div>
                       </div>
                     </div>
 
                     <!-- Update Stock -->
                     <div class="border rounded-lg p-4 space-y-3">
-                      <h3 class="font-medium text-gray-900">Update Stock</h3>
+                      <h3 class="font-medium text-gray-900">재고 수정</h3>
                       <div class="grid grid-cols-2 gap-4">
                         <div>
-                          <label class="block text-xs text-gray-600 mb-1">Adjustment Type</label>
+                          <label class="block text-xs text-gray-600 mb-1">조정 유형</label>
                           <select v-model="stockForm.adjustType" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                            <option value="set">Set Quantity</option>
-                            <option value="add">Add Stock</option>
-                            <option value="subtract">Remove Stock</option>
+                            <option value="set">수량 설정</option>
+                            <option value="add">재고 추가</option>
+                            <option value="subtract">재고 차감</option>
                           </select>
                         </div>
                         <div>
-                          <label class="block text-xs text-gray-600 mb-1">Quantity</label>
+                          <label class="block text-xs text-gray-600 mb-1">수량</label>
                           <input
                             v-model.number="stockForm.adjustQuantity"
                             type="number"
                             min="0"
-                            placeholder="Quantity"
+                            placeholder="수량"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                           />
                         </div>
                       </div>
                       <div>
-                        <label class="block text-xs text-gray-600 mb-1">Note (optional)</label>
+                        <label class="block text-xs text-gray-600 mb-1">메모 (선택)</label>
                         <input
                           v-model="stockForm.note"
                           type="text"
-                          placeholder="e.g., New shipment arrived"
+                          placeholder="예: 신규 입고"
                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                         />
                       </div>
                       <button @click="saveStock" class="w-full bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-lg font-medium text-sm transition-colors">
-                        Update Stock
+                        재고 저장
                       </button>
                     </div>
 
                     <!-- Stock History (Dummy) -->
                     <div>
-                      <h3 class="font-medium text-gray-900 mb-3">Stock History</h3>
+                      <h3 class="font-medium text-gray-900 mb-3">재고 이력</h3>
                       <div class="border rounded-lg overflow-hidden">
                         <table class="w-full text-sm">
                           <thead class="bg-gray-50">
                             <tr>
-                              <th class="px-4 py-2 text-left text-gray-600">Date</th>
-                              <th class="px-4 py-2 text-left text-gray-600">Type</th>
-                              <th class="px-4 py-2 text-left text-gray-600">Qty</th>
-                              <th class="px-4 py-2 text-left text-gray-600">Note</th>
+                              <th class="px-4 py-2 text-left text-gray-600">날짜</th>
+                              <th class="px-4 py-2 text-left text-gray-600">유형</th>
+                              <th class="px-4 py-2 text-left text-gray-600">수량</th>
+                              <th class="px-4 py-2 text-left text-gray-600">메모</th>
                             </tr>
                           </thead>
                           <tbody class="divide-y">
@@ -289,7 +289,7 @@
                     </div>
                   </div>
                   <div v-else class="text-center py-12 text-gray-500">
-                    <p>Select a product to manage stock</p>
+                    <p>재고를 관리할 상품을 선택하세요</p>
                   </div>
                 </div>
               </div>
@@ -319,9 +319,9 @@ const totalPages = ref(0)
 const pageSize = ref(20)
 
 const tabs = [
-  { id: 'info', label: 'Product Info' },
-  { id: 'price', label: 'Price Settings' },
-  { id: 'stock', label: 'Stock Management' }
+  { id: 'info', label: '상품 정보' },
+  { id: 'price', label: '가격 설정' },
+  { id: 'stock', label: '재고 관리' }
 ]
 
 const form = ref({ id: null, name: '', categoryId: '' })
@@ -352,9 +352,9 @@ const dummyPriceHistory = computed(() => {
 
 // Dummy data for stock history
 const dummyStockHistory = [
-  { id: 1, date: '2025-01-15', type: 'add', quantity: 50, result: 100, note: 'New shipment' },
-  { id: 2, date: '2025-01-10', type: 'subtract', quantity: 10, result: 50, note: 'Order #1234' },
-  { id: 3, date: '2025-01-05', type: 'set', quantity: 60, result: 60, note: 'Inventory count' }
+  { id: 1, date: '2025-01-15', type: 'add', quantity: 50, result: 100, note: '신규 입고' },
+  { id: 2, date: '2025-01-10', type: 'subtract', quantity: 10, result: 50, note: '주문 #1234' },
+  { id: 3, date: '2025-01-05', type: 'set', quantity: 60, result: 60, note: '재고 실사' }
 ]
 
 const flatCategories = computed(() => {
@@ -446,27 +446,27 @@ async function saveProduct() {
     }
     clearSelection()
     await loadProducts()
-    alert('Product saved successfully!')
+    alert('상품이 저장되었습니다!')
   } catch (error) {
-    alert('Failed to save: ' + error.message)
+    alert('저장 실패: ' + error.message)
   }
 }
 
 async function deleteProduct(id) {
-  if (!confirm('Are you sure you want to delete this product?')) return
+  if (!confirm('이 상품을 삭제하시겠습니까?')) return
   try {
     await productAPI.delete(id)
     clearSelection()
     await loadProducts()
-    alert('Product deleted successfully!')
+    alert('상품이 삭제되었습니다!')
   } catch (error) {
-    alert('Failed to delete: ' + error.message)
+    alert('삭제 실패: ' + error.message)
   }
 }
 
 function savePrice() {
   // TODO: Implement actual API call
-  alert(`Price saved: ${formatPrice(priceForm.value.price)} (${priceForm.value.startDate} ~ ${priceForm.value.endDate})\n\nNote: This is a dummy implementation. API not yet connected.`)
+  alert(`가격 저장됨: ${formatPrice(priceForm.value.price)} (${priceForm.value.startDate} ~ ${priceForm.value.endDate})\n\n참고: 더미 구현입니다. API가 아직 연결되지 않았습니다.`)
 }
 
 function saveStock() {
@@ -474,16 +474,16 @@ function saveStock() {
   let message = ''
   switch (stockForm.value.adjustType) {
     case 'set':
-      message = `Stock set to ${stockForm.value.adjustQuantity}`
+      message = `재고가 ${stockForm.value.adjustQuantity}개로 설정됨`
       break
     case 'add':
-      message = `Added ${stockForm.value.adjustQuantity} to stock`
+      message = `재고 ${stockForm.value.adjustQuantity}개 추가됨`
       break
     case 'subtract':
-      message = `Removed ${stockForm.value.adjustQuantity} from stock`
+      message = `재고 ${stockForm.value.adjustQuantity}개 차감됨`
       break
   }
-  alert(`${message}\n${stockForm.value.note ? 'Note: ' + stockForm.value.note : ''}\n\nNote: This is a dummy implementation. API not yet connected.`)
+  alert(`${message}\n${stockForm.value.note ? '메모: ' + stockForm.value.note : ''}\n\n참고: 더미 구현입니다. API가 아직 연결되지 않았습니다.`)
 }
 
 function formatPrice(price) {
