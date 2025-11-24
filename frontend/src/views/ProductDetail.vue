@@ -24,10 +24,14 @@
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Left: Product Image -->
             <div class="bg-white rounded-xl shadow-sm p-6">
-              <div class="aspect-square bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                <svg class="w-32 h-32 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="aspect-square bg-gray-100 rounded-lg flex items-center justify-center mb-4 relative">
+                <svg :class="['w-32 h-32 text-gray-300', !product.isOnSale && 'opacity-50']" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
+                <!-- 품절 표시 -->
+                <div v-if="!product.isOnSale" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 rounded-lg">
+                  <span class="bg-gray-800 text-white px-6 py-3 rounded-lg font-bold text-xl">품절</span>
+                </div>
               </div>
               <div class="grid grid-cols-4 gap-2">
                 <div v-for="i in 4" :key="i" class="aspect-square bg-gray-100 rounded-lg cursor-pointer hover:ring-2 hover:ring-teal-500 transition-all"></div>
@@ -75,17 +79,19 @@
                   <div class="flex gap-3">
                     <button
                       @click="addToCart"
-                      :disabled="isAddingToCart"
-                      class="flex-1 py-3 rounded-lg font-bold text-gray-900 bg-yellow-400 hover:bg-yellow-500 transition-colors disabled:opacity-50"
+                      :disabled="isAddingToCart || !product.isOnSale"
+                      class="flex-1 py-3 rounded-lg font-bold text-gray-900 bg-yellow-400 hover:bg-yellow-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {{ isAddingToCart ? '담는 중...' : '장바구니 담기' }}
+                      <span v-if="!product.isOnSale">품절된 상품입니다</span>
+                      <span v-else>{{ isAddingToCart ? '담는 중...' : '장바구니 담기' }}</span>
                     </button>
                     <button
                       @click="buyNow"
-                      :disabled="isAddingToCart"
-                      class="flex-1 py-3 rounded-lg font-bold text-white bg-teal-600 hover:bg-teal-700 transition-colors disabled:opacity-50"
+                      :disabled="isAddingToCart || !product.isOnSale"
+                      class="flex-1 py-3 rounded-lg font-bold text-white bg-teal-600 hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {{ isAddingToCart ? '처리 중...' : '바로 구매' }}
+                      <span v-if="!product.isOnSale">구매 불가</span>
+                      <span v-else>{{ isAddingToCart ? '처리 중...' : '바로 구매' }}</span>
                     </button>
                   </div>
                 </div>
@@ -233,7 +239,7 @@ onMounted(async () => {
 })
 
 function getCategoryPath(product) {
-  const parts = [product.largeClassNAme]
+  const parts = [product.largeClassName]
   if (product.mediumClassName) parts.push(product.mediumClassName)
   if (product.smallClassName) parts.push(product.smallClassName)
   return parts.join(' > ')

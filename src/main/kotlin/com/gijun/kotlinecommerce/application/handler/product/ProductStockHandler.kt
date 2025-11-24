@@ -5,35 +5,37 @@ import com.gijun.kotlinecommerce.application.port.input.product.ProductStockUseC
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductStockJpaPort
 import com.gijun.kotlinecommerce.domain.common.eunms.Action
 import com.gijun.kotlinecommerce.domain.product.exception.ProductOutOfStockException
-import com.gijun.kotlinecommerce.domain.product.model.ProductStock
+import com.gijun.kotlinecommerce.domain.product.model.ProductStockModel
+import org.springframework.stereotype.Service
 
+@Service
 class ProductStockHandler(
     private val productStockJpaPort: ProductStockJpaPort
 ) : ProductStockUseCase {
-    override fun adjustProductStock(command: AdjustProductStockCommand): ProductStock {
-        val productStock = productStockJpaPort.findByProductId(command.productId)
-            ?: ProductStock.create(command.productId, command.quantity)
+    override fun adjustProductStock(command: AdjustProductStockCommand): ProductStockModel {
+        val productStockModel = productStockJpaPort.findByProductId(command.productId)
+            ?: ProductStockModel.create(command.productId, command.quantity)
 
-        when(command.action) {
+        val updatedModel = when(command.action) {
             Action.ADD -> {
-                if (productStock.id == null) {
-                    return productStockJpaPort.save(productStock)
+                if (productStockModel.id == null) {
+                    return productStockJpaPort.save(productStockModel)
                 } else {
-                    productStock.update(Action.ADD, command.quantity)
+                    productStockModel.update(Action.ADD, command.quantity)
                 }
             }
             Action.REMOVE -> {
-                if(productStock.quantity <= command.quantity) {
-                    throw ProductOutOfStockException(command.productId,command.quantity, productStock.quantity)
+                if(productStockModel.quantity < command.quantity) {
+                    throw ProductOutOfStockException(command.productId, command.quantity, productStockModel.quantity)
                 } else {
-                    productStock.update(Action.REMOVE, command.quantity)
+                    productStockModel.update(Action.REMOVE, command.quantity)
                 }
             }
         }
-        return productStockJpaPort.save(productStock)
+        return productStockJpaPort.save(updatedModel)
     }
 
-    override fun getAllProductStock(): List<ProductStock> {
+    override fun getAllProductStock(): List<ProductStockModel> {
         return productStockJpaPort.findAll()
     }
 }

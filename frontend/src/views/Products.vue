@@ -71,15 +71,19 @@
                   class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all group"
                 >
                   <div class="aspect-square bg-gray-100 flex items-center justify-center relative">
-                    <svg class="w-16 h-16 text-gray-300 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg :class="['w-16 h-16 text-gray-300 group-hover:scale-110 transition-transform', !product.isOnSale && 'opacity-50']" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                     </svg>
-                    <span v-if="product.discount" class="absolute top-2 left-2 bg-rose-500 text-white text-xs font-bold px-2 py-0.5 rounded">
+                    <!-- 품절 표시 -->
+                    <div v-if="!product.isOnSale" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40">
+                      <span class="bg-gray-800 text-white px-3 py-1 rounded-lg font-bold text-sm">품절</span>
+                    </div>
+                    <span v-if="product.discount && product.isOnSale" class="absolute top-2 left-2 bg-rose-500 text-white text-xs font-bold px-2 py-0.5 rounded">
                       -{{ product.discount }}%
                     </span>
                   </div>
                   <div class="p-3">
-                    <div class="text-xs text-gray-500 mb-1">{{ product.largeClassNAme }}</div>
+                    <div class="text-xs text-gray-500 mb-1">{{ product.largeClassName }}</div>
                     <div class="font-medium text-gray-900 text-sm truncate mb-2">{{ product.productName }}</div>
                     <div class="flex items-center gap-2">
                       <span class="text-teal-600 font-bold">{{ formatPrice(product.productPrice) }}</span>

@@ -6,8 +6,9 @@ import java.time.LocalDate
 data class GetProductResult(
     val productId : Long,
     val productName : String,
+    val isOnSale: Boolean,
     val largeClassId: Long,
-    val largeClassNAme: String,
+    val largeClassName: String,
     val mediumClassId: Long?,
     val mediumClassName: String?,
     val smallClassId: Long?,

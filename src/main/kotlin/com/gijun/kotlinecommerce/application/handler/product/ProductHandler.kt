@@ -8,6 +8,7 @@ import com.gijun.kotlinecommerce.application.port.output.cache.ProductPriceCache
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductCategoryJpaPort
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductJpaPort
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductPriceJpaPort
+import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductStockJpaPort
 import com.gijun.kotlinecommerce.domain.common.PageRequest
 import com.gijun.kotlinecommerce.domain.common.PageResponse
 import com.gijun.kotlinecommerce.domain.common.validator.CommonValidators
@@ -26,6 +27,7 @@ class ProductHandler(
     private val productJpaPort: ProductJpaPort,
     private val productCategoryJpaPort: ProductCategoryJpaPort,
     private val productPriceJpaPort: ProductPriceJpaPort,
+    private val productStockJpaPort: ProductStockJpaPort,
     private val productPriceCachePort: ProductPriceCachePort
 ) : ProductUseCase {
 
@@ -100,6 +102,7 @@ class ProductHandler(
     ): GetProductResult {
         val categoryChain = mutableListOf<ProductCategoryModel>()
         var currentCategory = allCategories[product.categoryId]
+        val isOnSale = productStockJpaPort.isGreaterThanZero(product.id!!)
 
         while (currentCategory != null) {
             categoryChain.add(0, currentCategory)
@@ -115,8 +118,9 @@ class ProductHandler(
         return GetProductResult(
             productId = product.id!!,
             productName = product.name,
+            isOnSale = isOnSale,
             largeClassId = categoryChain.getOrNull(0)?.id ?: 0L,
-            largeClassNAme = categoryChain.getOrNull(0)?.name ?: "",
+            largeClassName = categoryChain.getOrNull(0)?.name ?: "",
             mediumClassId = categoryChain.getOrNull(1)?.id,
             mediumClassName = categoryChain.getOrNull(1)?.name,
             smallClassId = categoryChain.getOrNull(2)?.id,
