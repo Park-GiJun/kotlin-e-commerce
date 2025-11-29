@@ -12,9 +12,19 @@ import OrderHistory from '../views/OrderHistory.vue'
 import OrderDetail from '../views/OrderDetail.vue'
 import Profile from '../views/Profile.vue'
 import Wishlist from '../views/Wishlist.vue'
+import CustomerService from '../views/CustomerService.vue'
+import Notice from '../views/Notice.vue'
+import Inquiry from '../views/Inquiry.vue'
+import FAQ from '../views/FAQ.vue'
+import Coupons from '../views/Coupons.vue'
+import Points from '../views/Points.vue'
 import AdminUsers from '../views/AdminUsers.vue'
 import AdminProducts from '../views/AdminProducts.vue'
 import AdminCategories from '../views/AdminCategories.vue'
+import AdminDashboard from '../views/AdminDashboard.vue'
+import AdminOrders from '../views/AdminOrders.vue'
+import AdminReviews from '../views/AdminReviews.vue'
+import AdminInquiries from '../views/AdminInquiries.vue'
 
 const routes = [
   {
@@ -89,7 +99,60 @@ const routes = [
     component: Wishlist,
     meta: { requiresAuth: true }
   },
+  {
+    path: '/coupons',
+    name: 'Coupons',
+    component: Coupons,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/points',
+    name: 'Points',
+    component: Points,
+    meta: { requiresAuth: true }
+  },
+  // 고객센터 (공개)
+  {
+    path: '/customer-service',
+    name: 'CustomerService',
+    component: CustomerService,
+    meta: { public: true }
+  },
+  {
+    path: '/notice',
+    name: 'Notice',
+    component: Notice,
+    meta: { public: true }
+  },
+  {
+    path: '/faq',
+    name: 'FAQ',
+    component: FAQ,
+    meta: { public: true }
+  },
+  {
+    path: '/inquiry',
+    name: 'Inquiry',
+    component: Inquiry,
+    meta: { requiresAuth: true }
+  },
   // 관리자 전용
+  {
+    path: '/admin',
+    redirect: '/admin/dashboard'
+  },
+  {
+    path: '/admin/dashboard',
+    name: 'AdminDashboard',
+    component: AdminDashboard,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/orders',
+    name: 'AdminOrders',
+    component: AdminOrders,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
   {
     path: '/admin/users',
     name: 'AdminUsers',
@@ -106,6 +169,18 @@ const routes = [
     path: '/admin/categories',
     name: 'AdminCategories',
     component: AdminCategories,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/reviews',
+    name: 'AdminReviews',
+    component: AdminReviews,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/inquiries',
+    name: 'AdminInquiries',
+    component: AdminInquiries,
     meta: { requiresAuth: true, requiresAdmin: true }
   },
   // 기존 가격 관리 페이지는 상품 관리로 리다이렉트

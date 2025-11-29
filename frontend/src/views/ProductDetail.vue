@@ -48,11 +48,11 @@
                 <!-- Rating -->
                 <div class="flex items-center gap-3 mb-4">
                   <div class="flex text-yellow-400">
-                    <svg v-for="i in 5" :key="i" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <svg v-for="i in 5" :key="i" class="w-5 h-5" :fill="i <= Math.round(product.averageRating / 2) ? 'currentColor' : 'none'" :stroke="i <= Math.round(product.averageRating / 2) ? 'none' : 'currentColor'" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                   </div>
-                  <span class="text-sm text-gray-600">4.5 (247개 후기)</span>
+                  <span class="text-sm text-gray-600">{{ (product.averageRating / 2).toFixed(1) }} ({{ product.reviewCount }}개 후기)</span>
                 </div>
 
                 <!-- Price -->
@@ -154,28 +154,80 @@
               <!-- Reviews -->
               <div v-show="activeTab === 'reviews'" class="space-y-4">
                 <div class="flex items-center gap-4 mb-6">
-                  <div class="text-4xl font-bold">4.5</div>
+                  <div class="text-4xl font-bold">{{ (product.averageRating / 2).toFixed(1) }}</div>
                   <div>
                     <div class="flex text-yellow-400">
-                      <svg v-for="i in 5" :key="i" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg v-for="i in 5" :key="i" class="w-5 h-5" :fill="i <= Math.round(product.averageRating / 2) ? 'currentColor' : 'none'" :stroke="i <= Math.round(product.averageRating / 2) ? 'none' : 'currentColor'" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
                     </div>
-                    <div class="text-sm text-gray-500">247개 후기</div>
+                    <div class="text-sm text-gray-500">{{ product.reviewCount }}개 후기</div>
                   </div>
                 </div>
-                <div v-for="review in dummyReviews" :key="review.id" class="border-b pb-4">
-                  <div class="flex items-center gap-2 mb-2">
-                    <div class="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold text-sm">{{ review.author[0] }}</div>
-                    <span class="font-medium">{{ review.author }}</span>
-                    <div class="flex text-yellow-400">
-                      <svg v-for="i in review.rating" :key="i" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
+
+                <!-- Review Form -->
+                <div v-if="authStore.isLoggedIn && !hasUserReviewed" class="border rounded-lg p-4 mb-6 bg-gray-50">
+                  <h4 class="font-medium text-gray-900 mb-3">리뷰 작성</h4>
+                  <div class="mb-3">
+                    <label class="block text-sm text-gray-600 mb-1">평점 (1-10)</label>
+                    <div class="flex gap-1">
+                      <button
+                        v-for="i in 10"
+                        :key="i"
+                        @click="reviewForm.rating = i"
+                        :class="['w-8 h-8 rounded border text-sm font-medium transition-colors', reviewForm.rating >= i ? 'bg-yellow-400 border-yellow-500 text-white' : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-100']"
+                      >
+                        {{ i }}
+                      </button>
                     </div>
-                    <span class="text-xs text-gray-500">{{ review.date }}</span>
                   </div>
-                  <p class="text-gray-600 text-sm">{{ review.content }}</p>
+                  <div class="mb-3">
+                    <label class="block text-sm text-gray-600 mb-1">후기 내용</label>
+                    <textarea
+                      v-model="reviewForm.comment"
+                      rows="3"
+                      class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      placeholder="상품에 대한 솔직한 후기를 작성해주세요."
+                    ></textarea>
+                  </div>
+                  <button
+                    @click="submitReview"
+                    :disabled="isSubmittingReview || reviewForm.rating === 0 || !reviewForm.comment.trim()"
+                    class="px-4 py-2 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {{ isSubmittingReview ? '등록 중...' : '리뷰 등록' }}
+                  </button>
+                </div>
+
+                <div v-else-if="!authStore.isLoggedIn" class="border rounded-lg p-4 mb-6 bg-gray-50 text-center">
+                  <p class="text-gray-600 mb-2">리뷰를 작성하려면 로그인이 필요합니다.</p>
+                  <router-link to="/login" class="text-teal-600 hover:underline font-medium">로그인하기</router-link>
+                </div>
+
+                <div v-else-if="hasUserReviewed" class="border rounded-lg p-4 mb-6 bg-green-50 text-center">
+                  <p class="text-green-700">이미 이 상품에 리뷰를 작성하셨습니다.</p>
+                </div>
+
+                <!-- Review List -->
+                <div v-if="product.reviewList && product.reviewList.length > 0">
+                  <div v-for="review in product.reviewList" :key="review.reviewerId" class="border-b pb-4 mb-4">
+                    <div class="flex items-center gap-2 mb-2">
+                      <div class="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold text-sm">{{ review.reviewerName ? review.reviewerName[0] : '?' }}</div>
+                      <span class="font-medium">{{ maskName(review.reviewerName) }}</span>
+                      <div class="flex text-yellow-400">
+                        <svg v-for="i in Math.round(review.rating / 2)" :key="i" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      </div>
+                      <span class="text-sm text-gray-500">({{ review.rating }}/10)</span>
+                      <span class="text-xs text-gray-500">{{ formatDate(review.reviewDate) }}</span>
+                    </div>
+                    <p class="text-gray-600 text-sm">{{ review.comment }}</p>
+                  </div>
+                </div>
+                <div v-else class="text-center text-gray-500 py-8">
+                  <p>아직 작성된 후기가 없습니다.</p>
+                  <p class="text-sm mt-1">첫 번째 후기를 작성해보세요!</p>
                 </div>
               </div>
             </div>
@@ -198,7 +250,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { productAPI } from '../api/product'
 import { useCartStore } from '../stores/cart'
@@ -217,29 +269,80 @@ const loading = ref(true)
 const quantity = ref(1)
 const activeTab = ref('description')
 const isAddingToCart = ref(false)
+const isSubmittingReview = ref(false)
+const reviewForm = ref({
+  rating: 0,
+  comment: ''
+})
 
 const tabs = [
   { id: 'description', label: '상품 정보' },
   { id: 'reviews', label: '후기' }
 ]
 
-const dummyReviews = [
-  { id: 1, author: '김**', rating: 5, date: '2025-01-10', content: '정말 좋은 상품이에요! 품질이 뛰어나고 배송도 빨랐습니다.' },
-  { id: 2, author: '이**', rating: 4, date: '2025-01-08', content: '가성비 좋아요. 추천합니다.' },
-  { id: 3, author: '박**', rating: 5, date: '2025-01-05', content: '선물용으로 샀는데 포장도 예쁘고 기대 이상이에요!' }
-]
+const hasUserReviewed = computed(() => {
+  if (!product.value?.reviewList || !authStore.user) return false
+  return product.value.reviewList.some(review => review.reviewerId === authStore.user.id)
+})
 
 onMounted(async () => {
   try {
     loading.value = true
     const res = await productAPI.getById(route.params.id)
     product.value = res.data
-  } catch (error) {
-    console.error('Failed to load product:', error)
+  } catch (err) {
+    console.error('Failed to load product:', err)
   } finally {
     loading.value = false
   }
 })
+
+async function submitReview() {
+  if (!authStore.isLoggedIn || !authStore.user) {
+    warning('로그인이 필요합니다.')
+    router.push('/login')
+    return
+  }
+
+  if (reviewForm.value.rating === 0 || !reviewForm.value.comment.trim()) {
+    warning('평점과 후기 내용을 모두 입력해주세요.')
+    return
+  }
+
+  isSubmittingReview.value = true
+  try {
+    await productAPI.createReview(
+      product.value.productId,
+      authStore.user.id,
+      reviewForm.value.rating,
+      reviewForm.value.comment
+    )
+    success('리뷰가 등록되었습니다!')
+
+    // Reload product to get updated reviews
+    const res = await productAPI.getById(route.params.id)
+    product.value = res.data
+
+    // Reset form
+    reviewForm.value = { rating: 0, comment: '' }
+  } catch (err) {
+    const message = err.response?.data?.message || '리뷰 등록에 실패했습니다.'
+    error(message)
+  } finally {
+    isSubmittingReview.value = false
+  }
+}
+
+function maskName(name) {
+  if (!name || name.length < 2) return name || '익명'
+  return name[0] + '*'.repeat(name.length - 1)
+}
+
+function formatDate(dateString) {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleDateString('ko-KR')
+}
 
 function getCategoryPath(product) {
   const parts = [product.largeClassName]

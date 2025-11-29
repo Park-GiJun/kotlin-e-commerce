@@ -3,12 +3,16 @@ package com.gijun.kotlinecommerce.application.handler.product
 import com.gijun.kotlinecommerce.application.dto.command.product.product.CreateProductCommand
 import com.gijun.kotlinecommerce.application.dto.command.product.product.UpdateProductCommand
 import com.gijun.kotlinecommerce.application.dto.result.product.product.GetProductResult
+import com.gijun.kotlinecommerce.application.dto.result.product.product.ProductReviewResult
 import com.gijun.kotlinecommerce.application.port.input.product.ProductUseCase
 import com.gijun.kotlinecommerce.application.port.output.cache.ProductPriceCachePort
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductCategoryJpaPort
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductJpaPort
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductPriceJpaPort
+import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductReviewJpaPort
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductStockJpaPort
+import com.gijun.kotlinecommerce.domain.product.model.ProductReviewModel
+import com.gijun.kotlinecommerce.domain.product.model.ReviewStats
 import com.gijun.kotlinecommerce.domain.common.PageRequest
 import com.gijun.kotlinecommerce.domain.common.PageResponse
 import com.gijun.kotlinecommerce.domain.common.validator.CommonValidators
@@ -21,6 +25,7 @@ import com.gijun.kotlinecommerce.domain.product.model.ProductPriceModel
 import org.springframework.stereotype.Service
 import java.math.BigInteger
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Service
 class ProductHandler(
@@ -28,7 +33,8 @@ class ProductHandler(
     private val productCategoryJpaPort: ProductCategoryJpaPort,
     private val productPriceJpaPort: ProductPriceJpaPort,
     private val productStockJpaPort: ProductStockJpaPort,
-    private val productPriceCachePort: ProductPriceCachePort
+    private val productPriceCachePort: ProductPriceCachePort,
+    private val productReviewJpaPort: ProductReviewJpaPort
 ) : ProductUseCase {
 
     override fun createProduct(command: CreateProductCommand): ProductModel {
@@ -48,7 +54,10 @@ class ProductHandler(
                 .find { it.productId == product.id }
                 ?.also { productPriceCachePort.save(it) }
 
-        return buildProductListResult(product, allCategories, price)
+        val reviewStats = productReviewJpaPort.getReviewStatsByProductId(product.id)
+        val reviews = productReviewJpaPort.getProductReviewByProductId(product.id)
+
+        return buildProductResult(product, allCategories, price, reviewStats, reviews)
     }
 
     override fun getAllProducts(pageRequest: PageRequest): PageResponse<GetProductResult> {
@@ -64,9 +73,10 @@ class ProductHandler(
                 .also { productPriceCachePort.saveAll(it) }
 
         val prices = priceList.associateBy { it.productId }
+        val reviewStatsMap = productReviewJpaPort.getReviewStatsByProductIds(productIds)
 
         val results = products.map { product ->
-            buildProductListResult(product, allCategories, prices[product.id])
+            buildProductResult(product, allCategories, prices[product.id], reviewStatsMap[product.id])
         }
 
         return PageResponse.of(results, pageRequest, totalElements)
@@ -87,18 +97,21 @@ class ProductHandler(
                 .also { productPriceCachePort.saveAll(it) }
 
         val prices = priceList.associateBy { it.productId }
+        val reviewStatsMap = productReviewJpaPort.getReviewStatsByProductIds(productIds)
 
         val results = products.map { product ->
-            buildProductListResult(product, allCategories, prices[product.id])
+            buildProductResult(product, allCategories, prices[product.id], reviewStatsMap[product.id])
         }
 
         return PageResponse.of(results, pageRequest, totalElements)
     }
 
-    private fun buildProductListResult(
+    private fun buildProductResult(
         product: ProductModel,
         allCategories: Map<Long, ProductCategoryModel>,
-        price: ProductPriceModel?
+        price: ProductPriceModel?,
+        reviewStats: ReviewStats? = null,
+        reviews: List<ProductReviewModel>? = null
     ): GetProductResult {
         val categoryChain = mutableListOf<ProductCategoryModel>()
         var currentCategory = allCategories[product.categoryId]
@@ -114,9 +127,21 @@ class ProductHandler(
         }
 
         val depth = categoryChain.size
+        val stats = reviewStats ?: ReviewStats()
+
+        val reviewList = reviews?.map { review ->
+            ProductReviewResult(
+                productId = review.productId,
+                rating = review.rating,
+                comment = review.comment,
+                reviewerId = review.reviewerId,
+                reviewerName = review.reviewerName,
+                reviewDate = review.reviewDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            )
+        }
 
         return GetProductResult(
-            productId = product.id!!,
+            productId = product.id,
             productName = product.name,
             isOnSale = isOnSale,
             largeClassId = categoryChain.getOrNull(0)?.id ?: 0L,
@@ -128,7 +153,10 @@ class ProductHandler(
             categoryDepth = depth,
             productPrice = price?.price?.toBigInteger() ?: BigInteger.ZERO,
             priceStartDate = price?.startDate ?: LocalDate.now(),
-            priceEndDate = price?.endDate ?: LocalDate.parse("9999-12-31")
+            priceEndDate = price?.endDate ?: LocalDate.parse("9999-12-31"),
+            reviewCount = stats.count,
+            averageRating = stats.averageRating,
+            reviewList = reviewList
         )
     }
 

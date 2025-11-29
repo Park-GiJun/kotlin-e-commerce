@@ -68,6 +68,24 @@
                     </svg>
                     주문 내역
                   </router-link>
+                  <router-link to="/coupons" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                    <svg class="w-4 h-4 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                    </svg>
+                    쿠폰함
+                  </router-link>
+                  <router-link to="/points" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                    <svg class="w-4 h-4 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    포인트
+                  </router-link>
+                  <router-link to="/inquiry" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                    <svg class="w-4 h-4 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                    1:1 문의
+                  </router-link>
                   <div class="border-t border-gray-200 my-1"></div>
                   <button @click="authStore.logout()" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center">
                     <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,28 +125,42 @@
     <!-- Navigation Bar -->
     <nav class="bg-white border-b border-gray-200 shadow-sm flex-shrink-0">
       <div class="max-w-7xl mx-auto px-4">
-        <div class="flex items-center h-10 text-sm">
-          <router-link to="/dashboard" class="text-gray-700 hover:text-teal-600 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors font-medium">
-            홈
-          </router-link>
-          <router-link to="/products" class="text-gray-700 hover:text-teal-600 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors font-medium">
-            전체 상품
-          </router-link>
+        <div class="flex items-center justify-between h-10 text-sm">
+          <div class="flex items-center">
+            <router-link to="/dashboard" class="text-gray-700 hover:text-teal-600 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors font-medium">
+              홈
+            </router-link>
+            <router-link to="/products" class="text-gray-700 hover:text-teal-600 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors font-medium">
+              전체 상품
+            </router-link>
+            <router-link to="/notice" class="text-gray-700 hover:text-teal-600 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors">
+              공지사항
+            </router-link>
+            <router-link to="/customer-service" class="text-gray-700 hover:text-teal-600 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors">
+              고객센터
+            </router-link>
 
-          <!-- 관리자 메뉴 -->
-          <template v-if="authStore.isAdmin">
-            <div class="border-l border-gray-300 h-4 mx-2"></div>
-            <span class="text-teal-700 text-xs font-bold bg-teal-100 px-2 py-0.5 rounded">관리자</span>
-            <router-link to="/admin/users" class="text-gray-700 hover:text-teal-600 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors">
-              회원 관리
-            </router-link>
-            <router-link to="/admin/products" class="text-gray-700 hover:text-teal-600 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors">
-              상품 관리
-            </router-link>
-            <router-link to="/admin/categories" class="text-gray-700 hover:text-teal-600 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors">
-              카테고리 관리
-            </router-link>
-          </template>
+            <!-- 관리자 메뉴 -->
+            <template v-if="authStore.isAdmin">
+              <div class="border-l border-gray-300 h-4 mx-2"></div>
+              <span class="text-teal-700 text-xs font-bold bg-teal-100 px-2 py-0.5 rounded">관리자</span>
+              <router-link to="/admin/dashboard" class="text-gray-700 hover:text-teal-600 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors">
+                대시보드
+              </router-link>
+              <router-link to="/admin/orders" class="text-gray-700 hover:text-teal-600 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors">
+                주문관리
+              </router-link>
+              <router-link to="/admin/products" class="text-gray-700 hover:text-teal-600 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors">
+                상품관리
+              </router-link>
+              <router-link to="/admin/reviews" class="text-gray-700 hover:text-teal-600 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors">
+                리뷰관리
+              </router-link>
+              <router-link to="/admin/inquiries" class="text-gray-700 hover:text-teal-600 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors">
+                문의관리
+              </router-link>
+            </template>
+          </div>
         </div>
       </div>
     </nav>

@@ -3,10 +3,14 @@ package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.prod
 import com.gijun.kotlinecommerce.domain.product.model.ProductImageModel
 import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.common.BaseEntity
 import jakarta.persistence.Column
+import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.Table
 
+@Entity
+@Table(name = "product_image")
 class ProductImageJpaEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,8 +20,8 @@ class ProductImageJpaEntity(
     @Column(name = "product_id", nullable = false)
     var productId: Long,
 
-    @Column(name = "order", nullable = false)
-    var order: Int = 0,
+    @Column(name = "image_order", nullable = false)
+    var imageOrder: Int = 0,
 
     @Column(name = "is_main", nullable = false)
     var isMain: Boolean = false,
@@ -30,7 +34,7 @@ class ProductImageJpaEntity(
         return ProductImageModel(
             id = id,
             productId = productId,
-            order = order,
+            imageOrder = imageOrder,
             isMain = isMain,
             imageUrl = imageUrl
         )
@@ -41,7 +45,7 @@ class ProductImageJpaEntity(
             return ProductImageJpaEntity(
                 id = model.id,
                 productId = model.productId,
-                order = model.order,
+                imageOrder = model.imageOrder,
                 isMain = model.isMain,
                 imageUrl = model.imageUrl
             )
