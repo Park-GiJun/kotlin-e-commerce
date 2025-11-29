@@ -142,7 +142,10 @@ import { ref, reactive, computed } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { useWishlistStore } from '../stores/wishlist'
 import { faker } from '@faker-js/faker/locale/ko'
+import { useAlert } from '../composables/useAlert'
 import Layout from '../components/Layout.vue'
+
+const { success, warning } = useAlert()
 
 const authStore = useAuthStore()
 const wishlistStore = useWishlistStore()
@@ -175,7 +178,7 @@ function saveProfile() {
   localStorage.setItem('user_info', JSON.stringify(updatedUser))
   authStore.user = updatedUser
   isEditing.value = false
-  alert('프로필이 업데이트되었습니다.')
+  success('프로필이 업데이트되었습니다.')
 }
 
 function cancelEdit() {
@@ -186,21 +189,21 @@ function cancelEdit() {
 
 function changePassword() {
   if (!passwordForm.current || !passwordForm.new || !passwordForm.confirm) {
-    alert('모든 필드를 입력해주세요.')
+    warning('모든 필드를 입력해주세요.')
     return
   }
 
   if (passwordForm.new !== passwordForm.confirm) {
-    alert('새 비밀번호가 일치하지 않습니다.')
+    warning('새 비밀번호가 일치하지 않습니다.')
     return
   }
 
   if (passwordForm.new.length < 6) {
-    alert('비밀번호는 최소 6자 이상이어야 합니다.')
+    warning('비밀번호는 최소 6자 이상이어야 합니다.')
     return
   }
 
-  alert('비밀번호가 변경되었습니다.')
+  success('비밀번호가 변경되었습니다.')
   passwordForm.current = ''
   passwordForm.new = ''
   passwordForm.confirm = ''

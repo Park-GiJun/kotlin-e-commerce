@@ -117,7 +117,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { faker } from '@faker-js/faker/locale/ko'
+import { useAlert } from '../composables/useAlert'
 import Layout from '../components/Layout.vue'
+
+const { success, info, confirm } = useAlert()
 
 const router = useRouter()
 
@@ -182,15 +185,16 @@ function formatDate(dateString) {
 }
 
 function writeReview(orderId) {
-  alert(`주문 ${orderId}의 리뷰 작성 페이지로 이동합니다.`)
+  info(`주문 ${orderId}의 리뷰 작성 페이지로 이동합니다.`)
 }
 
-function cancelOrder(orderId) {
-  if (confirm('주문을 취소하시겠습니까?')) {
+async function cancelOrder(orderId) {
+  const confirmed = await confirm('주문을 취소하시겠습니까?', '주문 취소')
+  if (confirmed) {
     const order = orders.value.find(o => o.id === orderId)
     if (order) {
       order.status = 'cancelled'
-      alert('주문이 취소되었습니다.')
+      success('주문이 취소되었습니다.')
     }
   }
 }

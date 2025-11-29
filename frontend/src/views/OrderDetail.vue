@@ -161,7 +161,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { faker } from '@faker-js/faker/locale/ko'
+import { useAlert } from '../composables/useAlert'
 import Layout from '../components/Layout.vue'
+
+const { success, info, confirm } = useAlert()
 
 const router = useRouter()
 const route = useRoute()
@@ -263,20 +266,21 @@ function calculateShippingFee() {
   return productTotal >= 50000 ? 0 : 3000
 }
 
-function cancelOrder() {
-  if (confirm('주문을 취소하시겠습니까?')) {
+async function cancelOrder() {
+  const confirmed = await confirm('주문을 취소하시겠습니까?', '주문 취소')
+  if (confirmed) {
     order.value.status = 'cancelled'
-    alert('주문이 취소되었습니다.')
+    success('주문이 취소되었습니다.')
     router.push('/orders')
   }
 }
 
 function writeReview() {
-  alert('리뷰 작성 페이지로 이동합니다.')
+  info('리뷰 작성 페이지로 이동합니다.')
 }
 
 function contactSupport() {
-  alert('고객센터(1234-5678)로 문의 부탁드립니다.')
+  info('고객센터(1234-5678)로 문의 부탁드립니다.')
 }
 
 function loadOrder() {

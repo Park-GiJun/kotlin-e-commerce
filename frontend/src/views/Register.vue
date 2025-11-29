@@ -88,6 +88,9 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { useAlert } from '../composables/useAlert'
+
+const { success } = useAlert()
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -100,7 +103,7 @@ async function handleRegister() {
   error.value = ''
   const result = await authStore.register(form.value.email, form.value.name, form.value.password, form.value.role)
   if (result.success) {
-    alert('회원가입 성공!')
+    success('회원가입 성공!')
     router.push('/login')
   } else {
     error.value = result.message

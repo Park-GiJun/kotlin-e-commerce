@@ -125,9 +125,6 @@
             <router-link to="/admin/products" class="text-gray-700 hover:text-teal-600 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors">
               상품 관리
             </router-link>
-            <router-link to="/admin/product-prices" class="text-gray-700 hover:text-teal-600 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors">
-              가격 관리
-            </router-link>
             <router-link to="/admin/categories" class="text-gray-700 hover:text-teal-600 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors">
               카테고리 관리
             </router-link>

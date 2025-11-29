@@ -15,7 +15,6 @@ import Wishlist from '../views/Wishlist.vue'
 import AdminUsers from '../views/AdminUsers.vue'
 import AdminProducts from '../views/AdminProducts.vue'
 import AdminCategories from '../views/AdminCategories.vue'
-import AdminProductPrices from '../views/AdminProductPrices.vue'
 
 const routes = [
   {
@@ -109,11 +108,10 @@ const routes = [
     component: AdminCategories,
     meta: { requiresAuth: true, requiresAdmin: true }
   },
+  // 기존 가격 관리 페이지는 상품 관리로 리다이렉트
   {
     path: '/admin/product-prices',
-    name: 'AdminProductPrices',
-    component: AdminProductPrices,
-    meta: { requiresAuth: true, requiresAdmin: true }
+    redirect: '/admin/products'
   }
 ]
 
