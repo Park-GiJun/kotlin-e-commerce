@@ -178,7 +178,7 @@
                             </tr>
                           </thead>
                           <tbody class="divide-y">
-                            <tr v-for="history in dummyPriceHistory" :key="history.id">
+                            <tr v-for="history in priceHistory" :key="history.id">
                               <td class="px-4 py-2 font-medium">{{ formatPrice(history.price) }}</td>
                               <td class="px-4 py-2 text-gray-600">{{ history.startDate }}</td>
                               <td class="px-4 py-2 text-gray-600">{{ history.endDate }}</td>
@@ -305,6 +305,8 @@
 import { ref, onMounted, computed } from 'vue'
 import { productAPI } from '../api/product'
 import { categoryAPI } from '../api/category'
+import { productStockAPI } from '../api/productStock'
+import { productPriceAPI } from '../api/productPrice'
 import Layout from '../components/Layout.vue'
 
 const products = ref([])
@@ -340,15 +342,8 @@ const stockForm = ref({
   note: ''
 })
 
-// Dummy data for price history
-const dummyPriceHistory = computed(() => {
-  if (!selectedProduct.value) return []
-  return [
-    { id: 1, price: selectedProduct.value.productPrice, startDate: '2025-01-01', endDate: '2099-12-31', active: true },
-    { id: 2, price: selectedProduct.value.productPrice * 1.1, startDate: '2024-10-01', endDate: '2024-12-31', active: false },
-    { id: 3, price: selectedProduct.value.productPrice * 1.2, startDate: '2024-07-01', endDate: '2024-09-30', active: false }
-  ]
-})
+// Price history from API
+const priceHistory = ref([])
 
 // Dummy data for stock history
 const dummyStockHistory = [
@@ -411,15 +406,51 @@ function prevPage() {
   }
 }
 
-function selectProduct(product) {
+async function selectProduct(product) {
   selectedProduct.value = product
   isCreating.value = false
   editMode.value = true
   const categoryId = product.smallClassId || product.mediumClassId || product.largeClassId
   form.value = { id: product.productId, name: product.productName, categoryId: categoryId }
   priceForm.value.price = product.productPrice
-  stockForm.value.quantity = Math.floor(Math.random() * 200) + 10
-  stockForm.value.reserved = Math.floor(Math.random() * 10)
+
+  // Load price history from API
+  await loadPriceHistory(product.productId)
+
+  // Load stock from API
+  try {
+    const stockRes = await productStockAPI.getByProductId(product.productId)
+    if (stockRes.data) {
+      stockForm.value.quantity = stockRes.data.quantity || 0
+      stockForm.value.reserved = 0
+    } else {
+      stockForm.value.quantity = 0
+      stockForm.value.reserved = 0
+    }
+  } catch (error) {
+    console.error('Failed to load stock:', error)
+    stockForm.value.quantity = 0
+    stockForm.value.reserved = 0
+  }
+}
+
+async function loadPriceHistory(productId) {
+  try {
+    const res = await productPriceAPI.getByProductId(productId)
+    const prices = res.data || []
+    const today = new Date().toISOString().split('T')[0]
+
+    priceHistory.value = prices.map(p => ({
+      id: p.id,
+      price: parseFloat(p.price),
+      startDate: p.startDate,
+      endDate: p.endDate,
+      active: p.startDate <= today && p.endDate >= today
+    }))
+  } catch (error) {
+    console.error('Failed to load price history:', error)
+    priceHistory.value = []
+  }
 }
 
 function createNewProduct() {
@@ -464,26 +495,75 @@ async function deleteProduct(id) {
   }
 }
 
-function savePrice() {
-  // TODO: Implement actual API call
-  alert(`가격 저장됨: ${formatPrice(priceForm.value.price)} (${priceForm.value.startDate} ~ ${priceForm.value.endDate})\n\n참고: 더미 구현입니다. API가 아직 연결되지 않았습니다.`)
+async function savePrice() {
+  if (!selectedProduct.value) return
+
+  try {
+    await productPriceAPI.create(
+      selectedProduct.value.productId,
+      priceForm.value.price,
+      priceForm.value.startDate,
+      priceForm.value.endDate
+    )
+
+    // Reload price history
+    await loadPriceHistory(selectedProduct.value.productId)
+
+    // Reset form
+    priceForm.value.price = 0
+    priceForm.value.startDate = new Date().toISOString().split('T')[0]
+    priceForm.value.endDate = '2099-12-31'
+
+    alert('가격이 저장되었습니다!')
+  } catch (error) {
+    console.error('Failed to save price:', error)
+    alert('가격 저장 실패: ' + (error.response?.data?.message || error.message))
+  }
 }
 
-function saveStock() {
-  // TODO: Implement actual API call
-  let message = ''
-  switch (stockForm.value.adjustType) {
-    case 'set':
-      message = `재고가 ${stockForm.value.adjustQuantity}개로 설정됨`
-      break
-    case 'add':
-      message = `재고 ${stockForm.value.adjustQuantity}개 추가됨`
-      break
-    case 'subtract':
-      message = `재고 ${stockForm.value.adjustQuantity}개 차감됨`
-      break
+async function saveStock() {
+  if (!selectedProduct.value) return
+
+  try {
+    let action = ''
+    let quantity = stockForm.value.adjustQuantity
+
+    switch (stockForm.value.adjustType) {
+      case 'set':
+        // For set, calculate the difference
+        const diff = quantity - stockForm.value.quantity
+        if (diff > 0) {
+          action = 'ADD'
+          quantity = diff
+        } else if (diff < 0) {
+          action = 'REMOVE'
+          quantity = Math.abs(diff)
+        } else {
+          alert('변경사항이 없습니다.')
+          return
+        }
+        break
+      case 'add':
+        action = 'ADD'
+        break
+      case 'subtract':
+        action = 'REMOVE'
+        break
+    }
+
+    await productStockAPI.adjust(selectedProduct.value.productId, quantity, action)
+
+    // Reload stock
+    const stockRes = await productStockAPI.getByProductId(selectedProduct.value.productId)
+    if (stockRes.data) {
+      stockForm.value.quantity = stockRes.data.quantity || 0
+    }
+
+    alert('재고가 저장되었습니다!')
+  } catch (error) {
+    console.error('Failed to save stock:', error)
+    alert('재고 저장 실패: ' + (error.response?.data?.message || error.message))
   }
-  alert(`${message}\n${stockForm.value.note ? '메모: ' + stockForm.value.note : ''}\n\n참고: 더미 구현입니다. API가 아직 연결되지 않았습니다.`)
 }
 
 function formatPrice(price) {
