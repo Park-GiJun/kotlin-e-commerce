@@ -203,7 +203,10 @@ import { useRoute, useRouter } from 'vue-router'
 import { productAPI } from '../api/product'
 import { useCartStore } from '../stores/cart'
 import { useAuthStore } from '../stores/auth'
+import { useAlert } from '../composables/useAlert'
 import Layout from '../components/Layout.vue'
+
+const { success, error, warning } = useAlert()
 
 const route = useRoute()
 const router = useRouter()
@@ -251,16 +254,16 @@ function formatPrice(price) {
 
 async function addToCart() {
   if (!authStore.isLoggedIn) {
-    alert('로그인이 필요합니다.')
+    warning('로그인이 필요합니다.')
     router.push('/login')
     return
   }
   isAddingToCart.value = true
   try {
     await cartStore.addToCart({ id: product.value.productId, productId: product.value.productId }, quantity.value)
-    alert(`${quantity.value}개 상품을 장바구니에 담았습니다!`)
+    success(`${quantity.value}개 상품을 장바구니에 담았습니다!`)
   } catch (e) {
-    alert('장바구니 담기 실패: ' + (e.response?.data?.message || e.message))
+    error('장바구니 담기 실패: ' + (e.response?.data?.message || e.message))
   } finally {
     isAddingToCart.value = false
   }
@@ -268,7 +271,7 @@ async function addToCart() {
 
 async function buyNow() {
   if (!authStore.isLoggedIn) {
-    alert('로그인이 필요합니다.')
+    warning('로그인이 필요합니다.')
     router.push('/login')
     return
   }
@@ -277,7 +280,7 @@ async function buyNow() {
     await cartStore.addToCart({ id: product.value.productId, productId: product.value.productId }, quantity.value)
     router.push('/checkout')
   } catch (e) {
-    alert('실패: ' + (e.response?.data?.message || e.message))
+    error('실패: ' + (e.response?.data?.message || e.message))
   } finally {
     isAddingToCart.value = false
   }

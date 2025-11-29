@@ -190,7 +190,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { userAPI } from '../api/user'
+import { useAlert } from '../composables/useAlert'
 import Layout from '../components/Layout.vue'
+
+const { success, error } = useAlert()
 
 const users = ref([])
 const selectedUser = ref(null)
@@ -210,9 +213,9 @@ async function loadUsers() {
       currentPage.value = pageResponse.page
       totalPages.value = pageResponse.totalPages
     }
-  } catch (error) {
-    console.error('Failed to load users:', error)
-    alert('회원 목록을 불러오는데 실패했습니다: ' + error.message)
+  } catch (err) {
+    console.error('Failed to load users:', err)
+    error('회원 목록을 불러오는데 실패했습니다: ' + err.message)
   }
 }
 
@@ -246,12 +249,12 @@ async function deleteUser() {
   try {
     await userAPI.delete(selectedUser.value.email)
     showDeleteModal.value = false
-    alert('회원이 삭제되었습니다.')
+    success('회원이 삭제되었습니다.')
     clearSelection()
     await loadUsers()
-  } catch (error) {
+  } catch (err) {
     showDeleteModal.value = false
-    alert('삭제 실패: ' + error.message)
+    error('삭제 실패: ' + err.message)
   }
 }
 </script>

@@ -130,8 +130,11 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { categoryAPI } from '../api/category'
+import { useAlert } from '../composables/useAlert'
 import Layout from '../components/Layout.vue'
 import CategoryItem from '../components/CategoryItem.vue'
+
+const { success, error, confirm } = useAlert()
 
 const categories = ref([])
 const selectedCategory = ref(null)
@@ -234,19 +237,22 @@ async function saveCategory() {
     }
     clearSelection()
     await loadCategories()
-  } catch (error) {
-    alert('저장 실패: ' + error.message)
+    success('카테고리가 저장되었습니다!')
+  } catch (err) {
+    error('저장 실패: ' + err.message)
   }
 }
 
 async function deleteCategory(id) {
-  if (!confirm('삭제하시겠습니까?')) return
+  const confirmed = await confirm('삭제하시겠습니까?', '삭제 확인')
+  if (!confirmed) return
   try {
     await categoryAPI.delete(id)
     clearSelection()
     await loadCategories()
-  } catch (error) {
-    alert('삭제 실패: ' + error.message)
+    success('카테고리가 삭제되었습니다!')
+  } catch (err) {
+    error('삭제 실패: ' + err.message)
   }
 }
 </script>

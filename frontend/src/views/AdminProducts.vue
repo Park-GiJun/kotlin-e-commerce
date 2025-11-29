@@ -307,7 +307,10 @@ import { productAPI } from '../api/product'
 import { categoryAPI } from '../api/category'
 import { productStockAPI } from '../api/productStock'
 import { productPriceAPI } from '../api/productPrice'
+import { useAlert } from '../composables/useAlert'
 import Layout from '../components/Layout.vue'
+
+const { success, error, warning, confirm } = useAlert()
 
 const products = ref([])
 const categories = ref([])
@@ -477,21 +480,22 @@ async function saveProduct() {
     }
     clearSelection()
     await loadProducts()
-    alert('상품이 저장되었습니다!')
-  } catch (error) {
-    alert('저장 실패: ' + error.message)
+    success('상품이 저장되었습니다!')
+  } catch (err) {
+    error('저장 실패: ' + err.message)
   }
 }
 
 async function deleteProduct(id) {
-  if (!confirm('이 상품을 삭제하시겠습니까?')) return
+  const confirmed = await confirm('이 상품을 삭제하시겠습니까?', '삭제 확인')
+  if (!confirmed) return
   try {
     await productAPI.delete(id)
     clearSelection()
     await loadProducts()
-    alert('상품이 삭제되었습니다!')
-  } catch (error) {
-    alert('삭제 실패: ' + error.message)
+    success('상품이 삭제되었습니다!')
+  } catch (err) {
+    error('삭제 실패: ' + err.message)
   }
 }
 
@@ -514,10 +518,10 @@ async function savePrice() {
     priceForm.value.startDate = new Date().toISOString().split('T')[0]
     priceForm.value.endDate = '2099-12-31'
 
-    alert('가격이 저장되었습니다!')
-  } catch (error) {
-    console.error('Failed to save price:', error)
-    alert('가격 저장 실패: ' + (error.response?.data?.message || error.message))
+    success('가격이 저장되었습니다!')
+  } catch (err) {
+    console.error('Failed to save price:', err)
+    error('가격 저장 실패: ' + (err.response?.data?.message || err.message))
   }
 }
 
@@ -539,7 +543,7 @@ async function saveStock() {
           action = 'REMOVE'
           quantity = Math.abs(diff)
         } else {
-          alert('변경사항이 없습니다.')
+          warning('변경사항이 없습니다.')
           return
         }
         break
@@ -559,10 +563,10 @@ async function saveStock() {
       stockForm.value.quantity = stockRes.data.quantity || 0
     }
 
-    alert('재고가 저장되었습니다!')
-  } catch (error) {
-    console.error('Failed to save stock:', error)
-    alert('재고 저장 실패: ' + (error.response?.data?.message || error.message))
+    success('재고가 저장되었습니다!')
+  } catch (err) {
+    console.error('Failed to save stock:', err)
+    error('재고 저장 실패: ' + (err.response?.data?.message || err.message))
   }
 }
 
