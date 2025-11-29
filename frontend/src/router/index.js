@@ -119,7 +119,11 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    // 항상 맨 위로 스크롤
+    return { top: 0, behavior: 'smooth' }
+  }
 })
 
 // Navigation guard

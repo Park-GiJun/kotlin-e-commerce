@@ -1,4 +1,4 @@
-package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.entity.product
+package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.entity
 
 import com.gijun.kotlinecommerce.domain.product.model.ProductModel
 import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.common.BaseEntity

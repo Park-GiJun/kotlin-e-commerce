@@ -1,10 +1,10 @@
-package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.adapter.product
+package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.adapter
 
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductJpaPort
 import com.gijun.kotlinecommerce.domain.common.PageRequest
 import com.gijun.kotlinecommerce.domain.product.model.ProductModel
-import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.entity.product.ProductJpaEntity
-import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.repository.product.ProductJpaRepository
+import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.entity.ProductJpaEntity
+import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.repository.ProductJpaRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 

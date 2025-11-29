@@ -10,6 +10,7 @@
     <property name="FILE_LOG_PATTERN"
               value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%logger{36}] : %msg%n"/>
 
+    <!-- ==================== DEV Profile ==================== -->
     <springProfile name="dev">
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
@@ -29,7 +30,10 @@
         </root>
     </springProfile>
 
+    <!-- ==================== PRD Profile ==================== -->
     <springProfile name="prd">
+
+        <!-- Console Appender -->
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
                 <pattern>${CONSOLE_LOG_PATTERN}</pattern>
@@ -37,7 +41,8 @@
             </encoder>
         </appender>
 
-        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 1. Application Log (일반 애플리케이션 로그) -->
+        <appender name="APP_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>logs/application.log</file>
             <encoder>
                 <pattern>${FILE_LOG_PATTERN}</pattern>
@@ -50,12 +55,11 @@
             </rollingPolicy>
         </appender>
 
+        <!-- 2. Error Log (에러만 별도 분리) -->
         <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>logs/error.log</file>
-            <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
                 <level>ERROR</level>
-                <onMatch>ACCEPT</onMatch>
-                <onMismatch>DENY</onMismatch>
             </filter>
             <encoder>
                 <pattern>${FILE_LOG_PATTERN}</pattern>
@@ -68,13 +72,118 @@
             </rollingPolicy>
         </appender>
 
-        <logger name="com.gijun.kotlinecommerce" level="INFO"/>
-        <logger name="org.springframework.web" level="WARN"/>
-        <logger name="org.hibernate.SQL" level="WARN"/>
+        <!-- 3. SQL Log (DB 쿼리 로그) -->
+        <appender name="SQL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>logs/sql.log</file>
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %msg%n</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>logs/sql-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>10MB</maxFileSize>
+                <totalSizeCap>200MB</totalSizeCap>
+            </rollingPolicy>
+        </appender>
 
+        <!-- 4. API Log (REST API 요청/응답) -->
+        <appender name="API_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>logs/api.log</file>
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level : %msg%n</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>logs/api-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>10MB</maxFileSize>
+                <totalSizeCap>200MB</totalSizeCap>
+            </rollingPolicy>
+        </appender>
+
+        <!-- 5. Security Log (인증/인가 관련) -->
+        <appender name="SECURITY_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>logs/security.log</file>
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%logger{36}] : %msg%n</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>logs/security-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>10MB</maxFileSize>
+                <totalSizeCap>100MB</totalSizeCap>
+            </rollingPolicy>
+        </appender>
+
+        <!-- 6. Business Log (비즈니스 로직 - Handler/UseCase) -->
+        <appender name="BUSINESS_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>logs/business.log</file>
+            <encoder>
+                <pattern>${FILE_LOG_PATTERN}</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>logs/business-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>10MB</maxFileSize>
+                <totalSizeCap>200MB</totalSizeCap>
+            </rollingPolicy>
+        </appender>
+
+        <!-- ========== Logger 설정 ========== -->
+
+        <!-- SQL 로그 -->
+        <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
+            <appender-ref ref="SQL_FILE"/>
+        </logger>
+        <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">
+            <appender-ref ref="SQL_FILE"/>
+        </logger>
+        <logger name="com.linecorp.kotlinjdsl" level="DEBUG" additivity="false">
+            <appender-ref ref="SQL_FILE"/>
+        </logger>
+
+        <!-- API 로그 (REST Adapter) -->
+        <logger name="com.gijun.kotlinecommerce.infrastructure.adapter.input.rest" level="DEBUG" additivity="false">
+            <appender-ref ref="API_FILE"/>
+            <appender-ref ref="APP_FILE"/>
+        </logger>
+
+        <!-- Security 로그 -->
+        <logger name="com.gijun.kotlinecommerce.infrastructure.security" level="DEBUG" additivity="false">
+            <appender-ref ref="SECURITY_FILE"/>
+            <appender-ref ref="APP_FILE"/>
+        </logger>
+        <logger name="org.springframework.security" level="DEBUG" additivity="false">
+            <appender-ref ref="SECURITY_FILE"/>
+        </logger>
+
+        <!-- Business 로그 (Handler) -->
+        <logger name="com.gijun.kotlinecommerce.application.handler" level="DEBUG" additivity="false">
+            <appender-ref ref="BUSINESS_FILE"/>
+            <appender-ref ref="APP_FILE"/>
+        </logger>
+
+        <!-- Domain 로그 -->
+        <logger name="com.gijun.kotlinecommerce.domain" level="DEBUG" additivity="false">
+            <appender-ref ref="BUSINESS_FILE"/>
+            <appender-ref ref="APP_FILE"/>
+        </logger>
+
+        <!-- Infrastructure 로그 (Persistence Adapter) -->
+        <logger name="com.gijun.kotlinecommerce.infrastructure.adapter.output" level="DEBUG" additivity="false">
+            <appender-ref ref="SQL_FILE"/>
+            <appender-ref ref="APP_FILE"/>
+        </logger>
+
+        <!-- 애플리케이션 전체 -->
+        <logger name="com.gijun.kotlinecommerce" level="INFO"/>
+
+        <!-- Spring Web -->
+        <logger name="org.springframework.web" level="WARN"/>
+
+        <!-- Root -->
         <root level="WARN">
             <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="FILE"/>
+            <appender-ref ref="APP_FILE"/>
             <appender-ref ref="ERROR_FILE"/>
         </root>
     </springProfile>

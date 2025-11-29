@@ -2,7 +2,7 @@ package com.gijun.kotlinecommerce.application.port.input.product
 
 import com.gijun.kotlinecommerce.application.dto.command.product.product.CreateProductCommand
 import com.gijun.kotlinecommerce.application.dto.command.product.product.UpdateProductCommand
-import com.gijun.kotlinecommerce.application.dto.result.product.GetProductResult
+import com.gijun.kotlinecommerce.application.dto.result.product.product.GetProductResult
 import com.gijun.kotlinecommerce.domain.common.PageRequest
 import com.gijun.kotlinecommerce.domain.common.PageResponse
 import com.gijun.kotlinecommerce.domain.product.model.ProductModel

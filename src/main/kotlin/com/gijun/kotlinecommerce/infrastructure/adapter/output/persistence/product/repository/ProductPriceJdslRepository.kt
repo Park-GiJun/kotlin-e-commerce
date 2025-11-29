@@ -1,6 +1,6 @@
-package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.repository.product
+package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.repository
 
-import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.entity.product.ProductPriceJpaEntity
+import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.product.entity.ProductPriceJpaEntity
 import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.support.spring.data.jpa.extension.createQuery

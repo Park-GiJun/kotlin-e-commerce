@@ -2,7 +2,7 @@ package com.gijun.kotlinecommerce.application.port.input.product
 
 import com.gijun.kotlinecommerce.application.dto.command.product.productCategory.CreateProductCategoryCommand
 import com.gijun.kotlinecommerce.application.dto.command.product.productCategory.UpdateProductCategoryCommand
-import com.gijun.kotlinecommerce.application.dto.result.product.GetProductCategoryHierarchyResult
+import com.gijun.kotlinecommerce.application.dto.result.product.productCategory.GetProductCategoryHierarchyResult
 import com.gijun.kotlinecommerce.domain.product.model.ProductCategoryModel
 
 interface ProductCategoryUseCase {

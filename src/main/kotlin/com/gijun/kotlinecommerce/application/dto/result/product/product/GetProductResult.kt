@@ -1,4 +1,4 @@
-package com.gijun.kotlinecommerce.application.dto.result.product
+package com.gijun.kotlinecommerce.application.dto.result.product.product
 
 import java.math.BigInteger
 import java.time.LocalDate
@@ -6,8 +6,9 @@ import java.time.LocalDate
 data class GetProductResult(
     val productId : Long,
     val productName : String,
+    val isOnSale: Boolean,
     val largeClassId: Long,
-    val largeClassNAme: String,
+    val largeClassName: String,
     val mediumClassId: Long?,
     val mediumClassName: String?,
     val smallClassId: Long?,
