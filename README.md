@@ -2,7 +2,7 @@
 
 Kotlin과 Spring Boot 기반의 이커머스 플랫폼입니다.
 
-> **Frontend Note**: 프론트엔드는 [Claude Code](https://claude.ai/claude-code)를 활용하여 개발되었습니다.
+> **Frontend**: 프론트엔드는 [Claude Code](https://claude.ai/claude-code)를 활용하여 개발되었습니다.
 
 ## Tech Stack
 
@@ -101,6 +101,15 @@ Redis를 활용한 상품 가격 캐싱으로 조회 성능 최적화
 ### JWT 인증
 Stateless JWT 기반 인증 시스템
 
+### 상품 리뷰 시스템
+- 상품별 리뷰 작성/조회
+- 평균 평점 및 리뷰 수 집계
+- 중복 리뷰 방지
+
+### 재고 관리
+- 상품별 재고 수량 관리
+- 품절 상태 자동 표시
+
 ## API Endpoints
 
 ### Public (인증 불필요)
@@ -116,6 +125,7 @@ Stateless JWT 기반 인증 시스템
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET/POST | `/api/carts/**` | 장바구니 관리 |
+| POST | `/api/reviews/products/{id}` | 상품 리뷰 작성 |
 
 ### Admin Only (관리자)
 | Method | Endpoint | Description |
@@ -123,6 +133,7 @@ Stateless JWT 기반 인증 시스템
 | POST/PUT/DELETE | `/api/products/**` | 상품 CUD |
 | POST/PUT/DELETE | `/api/product-categories/**` | 카테고리 CUD |
 | POST/PUT/DELETE | `/api/product-prices/**` | 가격 CUD |
+| POST/PUT/DELETE | `/api/product-stocks/**` | 재고 관리 |
 
 ## Getting Started
 
@@ -167,6 +178,8 @@ implementation("io.jsonwebtoken:jjwt-api:0.12.5")
 // Swagger
 implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14")
 ```
+
+---
 
 **Built with Kotlin + Spring Boot**
 
