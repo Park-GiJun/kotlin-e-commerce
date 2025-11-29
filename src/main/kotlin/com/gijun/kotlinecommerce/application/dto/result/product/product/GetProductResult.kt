@@ -16,5 +16,8 @@ data class GetProductResult(
     val categoryDepth: Int,
     val productPrice: BigInteger,
     val priceStartDate: LocalDate,
-    val priceEndDate: LocalDate
+    val priceEndDate: LocalDate,
+    val reviewCount: Int = 0,
+    val averageRating: Double = 0.0,
+    val reviewList: List<ProductReviewResult>? = null
 )
