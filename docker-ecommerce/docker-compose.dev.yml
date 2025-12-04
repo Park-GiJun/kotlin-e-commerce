@@ -66,12 +66,50 @@ services:
     networks:
       - ecommerce-network-dev
 
+  prometheus-dev:
+    image: prom/prometheus:latest
+    container_name: ecommerce-prometheus-dev
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-dev-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+    networks:
+      - ecommerce-network-dev
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  grafana-dev:
+    image: grafana/grafana:latest
+    container_name: ecommerce-grafana-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-dev-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus-dev
+    networks:
+      - ecommerce-network-dev
+
 volumes:
   mysql-dev-data:
   redis-dev-data:
   zookeeper-dev-data:
   zookeeper-dev-log:
   kafka-dev-data:
+  prometheus-dev-data:
+  grafana-dev-data:
 
 networks:
   ecommerce-network-dev:

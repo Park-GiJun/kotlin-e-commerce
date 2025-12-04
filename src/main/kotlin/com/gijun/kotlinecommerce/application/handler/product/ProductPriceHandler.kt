@@ -1,5 +1,6 @@
 package com.gijun.kotlinecommerce.application.handler.product
 
+import com.gijun.kotlinecommerce.application.annotation.DistributeLock
 import com.gijun.kotlinecommerce.application.dto.command.product.productPrice.CreateProductPriceCommand
 import com.gijun.kotlinecommerce.application.dto.command.product.productPrice.UpdateProductPriceCommand
 import com.gijun.kotlinecommerce.application.port.input.product.ProductPriceUseCase
@@ -7,23 +8,28 @@ import com.gijun.kotlinecommerce.application.port.output.cache.ProductPriceCache
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductJpaPort
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductPriceJpaPort
 import com.gijun.kotlinecommerce.domain.common.validator.CommonValidators
+import com.gijun.kotlinecommerce.domain.lock.model.DistributedLockType
 import com.gijun.kotlinecommerce.domain.product.exception.ProductNotFoundException
 import com.gijun.kotlinecommerce.domain.product.exception.ProductPriceNotFoundException
 import com.gijun.kotlinecommerce.domain.product.exception.ProductPriceValidationException
 import com.gijun.kotlinecommerce.domain.product.model.ProductModel
 import com.gijun.kotlinecommerce.domain.product.model.ProductPriceModel
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.LocalDate
 
 @Service
+@Transactional(readOnly = true)
 class ProductPriceHandler(
     private val productPriceJpaPort: ProductPriceJpaPort,
     private val productJpaPort: ProductJpaPort,
     private val productPriceCachePort: ProductPriceCachePort
 ) : ProductPriceUseCase {
 
+    @Transactional
+    @DistributeLock(type = DistributedLockType.PRICE, key = "#command.productId")
     override fun createProductPrice(command: CreateProductPriceCommand): ProductPriceModel {
         validateForCreate(command.productId, command.price, command.startDate, command.endDate)
 
@@ -48,6 +54,8 @@ class ProductPriceHandler(
         return savedProductPrice
     }
 
+    @Transactional
+    @DistributeLock(type = DistributedLockType.PRICE, key = "#command.productId")
     override fun updateProductPrice(command: UpdateProductPriceCommand): ProductPriceModel {
         validateForUpdate(command.productPriceId, command.productId, command.price, command.startDate, command.endDate)
 
@@ -79,6 +87,7 @@ class ProductPriceHandler(
         return savedProductPrice
     }
 
+    @Transactional
     override fun updateAllProductPriceByToDay(today: LocalDate): List<ProductPriceModel> {
         val todayPrice = productPriceJpaPort.findAllCurrentPrices()
         return productPriceCachePort.saveAll(todayPrice)
@@ -109,6 +118,8 @@ class ProductPriceHandler(
         return validateProductPriceExists(id)
     }
 
+    @Transactional
+    @DistributeLock(type = DistributedLockType.PRICE, key = "#id")
     override fun deleteProductPrice(id: Long): ProductPriceModel {
         CommonValidators.validatePositive(id, "상품 가격 ID")
         val productPrice = validateProductPriceExists(id)

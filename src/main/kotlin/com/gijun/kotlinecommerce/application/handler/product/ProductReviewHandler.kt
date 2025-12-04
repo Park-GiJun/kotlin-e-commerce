@@ -1,5 +1,6 @@
 package com.gijun.kotlinecommerce.application.handler.product
 
+import com.gijun.kotlinecommerce.application.annotation.DistributeLock
 import com.gijun.kotlinecommerce.application.dto.command.product.productReview.CreateProductReviewCommand
 import com.gijun.kotlinecommerce.application.port.input.product.ProductReviewUseCase
 import com.gijun.kotlinecommerce.application.port.input.product.ProductUseCase
@@ -7,6 +8,7 @@ import com.gijun.kotlinecommerce.application.port.output.persistence.product.Pro
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductReviewJpaPort
 import com.gijun.kotlinecommerce.application.port.output.persistence.user.UserJpaPort
 import com.gijun.kotlinecommerce.domain.common.validator.CommonValidators
+import com.gijun.kotlinecommerce.domain.lock.model.DistributedLockType
 import com.gijun.kotlinecommerce.domain.product.exception.ProductNotFoundException
 import com.gijun.kotlinecommerce.domain.product.exception.ProductReviewConflictException
 import com.gijun.kotlinecommerce.domain.product.model.ProductModel
@@ -14,13 +16,18 @@ import com.gijun.kotlinecommerce.domain.product.model.ProductReviewModel
 import com.gijun.kotlinecommerce.domain.user.exception.UserNotFoundException
 import com.gijun.kotlinecommerce.domain.user.model.UserModel
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional(readOnly = true)
 class ProductReviewHandler(
     private val userJpaPort: UserJpaPort,
     private val productJpaPort: ProductJpaPort,
     private val productReviewJpaPort: ProductReviewJpaPort
 ) : ProductReviewUseCase {
+
+    @Transactional
+    @DistributeLock(type = DistributedLockType.REVIEW, key = "'product:' + #command.productId + ':user:' + #command.reviewerId")
     override fun createProductReview(command: CreateProductReviewCommand): ProductReviewModel {
         validateRatingInRage(command.rating)
         validateDuplicateReview(command.productId, command.reviewerId)

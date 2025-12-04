@@ -23,11 +23,13 @@ import com.gijun.kotlinecommerce.domain.product.model.ProductCategoryModel
 import com.gijun.kotlinecommerce.domain.product.model.ProductModel
 import com.gijun.kotlinecommerce.domain.product.model.ProductPriceModel
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.math.BigInteger
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Service
+@Transactional(readOnly = true)
 class ProductHandler(
     private val productJpaPort: ProductJpaPort,
     private val productCategoryJpaPort: ProductCategoryJpaPort,
@@ -37,6 +39,7 @@ class ProductHandler(
     private val productReviewJpaPort: ProductReviewJpaPort
 ) : ProductUseCase {
 
+    @Transactional
     override fun createProduct(command: CreateProductCommand): ProductModel {
         validateForCreate(command.categoryId, command.name)
         validateCategoryExists(command.categoryId)
@@ -106,6 +109,22 @@ class ProductHandler(
         return PageResponse.of(results, pageRequest, totalElements)
     }
 
+    @Transactional
+    override fun deleteProduct(id: Long): ProductModel {
+        val product = validateProductExists(id)
+        return productJpaPort.delete(product)
+    }
+
+    @Transactional
+    override fun updateProduct(command: UpdateProductCommand): ProductModel {
+        validateForUpdate(command.id, command.categoryId, command.name)
+        validateCategoryExists(command.categoryId)
+        validateProductExists(command.id)
+
+        val product = ProductModel.of(command.id, command.categoryId, command.name)
+        return productJpaPort.update(product)
+    }
+
     private fun buildProductResult(
         product: ProductModel,
         allCategories: Map<Long, ProductCategoryModel>,
@@ -158,20 +177,6 @@ class ProductHandler(
             averageRating = stats.averageRating,
             reviewList = reviewList
         )
-    }
-
-    override fun deleteProduct(id: Long): ProductModel {
-        val product = validateProductExists(id)
-        return productJpaPort.delete(product)
-    }
-
-    override fun updateProduct(command: UpdateProductCommand): ProductModel {
-        validateForUpdate(command.id, command.categoryId, command.name)
-        validateCategoryExists(command.categoryId)
-        validateProductExists(command.id)
-
-        val product = ProductModel.of(command.id, command.categoryId, command.name)
-        return productJpaPort.update(product)
     }
 
     private fun validateProductExists(productId: Long): ProductModel {

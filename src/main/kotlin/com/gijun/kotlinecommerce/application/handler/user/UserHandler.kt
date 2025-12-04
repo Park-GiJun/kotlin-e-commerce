@@ -1,24 +1,30 @@
 package com.gijun.kotlinecommerce.application.handler.user
 
+import com.gijun.kotlinecommerce.application.annotation.DistributeLock
 import com.gijun.kotlinecommerce.application.dto.command.user.RegisterUserCommand
 import com.gijun.kotlinecommerce.application.port.input.user.UserUseCase
 import com.gijun.kotlinecommerce.application.port.output.persistence.user.UserJpaPort
 import com.gijun.kotlinecommerce.domain.common.PageRequest
 import com.gijun.kotlinecommerce.domain.common.PageResponse
 import com.gijun.kotlinecommerce.domain.common.validator.CommonValidators
+import com.gijun.kotlinecommerce.domain.lock.model.DistributedLockType
 import com.gijun.kotlinecommerce.domain.user.exception.UserAlreadyExistsException
 import com.gijun.kotlinecommerce.domain.user.exception.UserNotFoundException
 import com.gijun.kotlinecommerce.domain.user.exception.UserValidationException
 import com.gijun.kotlinecommerce.domain.user.model.UserModel
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional(readOnly = true)
 class UserHandler(
     private val userJpaPort: UserJpaPort,
     private val passwordEncoder: PasswordEncoder
 ) : UserUseCase {
 
+    @Transactional
+    @DistributeLock(type = DistributedLockType.USER, key = "#command.email")
     override fun registerUser(command: RegisterUserCommand): UserModel {
         validateForRegister(command.email, command.name, command.password)
         validateUserNotExists(command.email)
@@ -28,6 +34,8 @@ class UserHandler(
         return userJpaPort.save(newUser)
     }
 
+    @Transactional
+    @DistributeLock(type = DistributedLockType.USER, key = "#userId")
     override fun deleteUser(userId: String): Boolean {
         val user = validateUserExists(userId)
         userJpaPort.delete(user)
