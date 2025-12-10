@@ -2,12 +2,17 @@ package com.gijun.kotlinecommerce.application.handler.product
 
 import com.gijun.kotlinecommerce.application.dto.command.product.product.CreateProductCommand
 import com.gijun.kotlinecommerce.application.dto.command.product.product.UpdateProductCommand
-import com.gijun.kotlinecommerce.application.dto.result.product.GetProductResult
+import com.gijun.kotlinecommerce.application.dto.result.product.product.GetProductResult
+import com.gijun.kotlinecommerce.application.dto.result.product.product.ProductReviewResult
 import com.gijun.kotlinecommerce.application.port.input.product.ProductUseCase
 import com.gijun.kotlinecommerce.application.port.output.cache.ProductPriceCachePort
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductCategoryJpaPort
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductJpaPort
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductPriceJpaPort
+import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductReviewJpaPort
+import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductStockJpaPort
+import com.gijun.kotlinecommerce.domain.product.model.ProductReviewModel
+import com.gijun.kotlinecommerce.domain.product.model.ReviewStats
 import com.gijun.kotlinecommerce.domain.common.PageRequest
 import com.gijun.kotlinecommerce.domain.common.PageResponse
 import com.gijun.kotlinecommerce.domain.common.validator.CommonValidators
@@ -18,17 +23,23 @@ import com.gijun.kotlinecommerce.domain.product.model.ProductCategoryModel
 import com.gijun.kotlinecommerce.domain.product.model.ProductModel
 import com.gijun.kotlinecommerce.domain.product.model.ProductPriceModel
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.math.BigInteger
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Service
+@Transactional(readOnly = true)
 class ProductHandler(
     private val productJpaPort: ProductJpaPort,
     private val productCategoryJpaPort: ProductCategoryJpaPort,
     private val productPriceJpaPort: ProductPriceJpaPort,
-    private val productPriceCachePort: ProductPriceCachePort
+    private val productStockJpaPort: ProductStockJpaPort,
+    private val productPriceCachePort: ProductPriceCachePort,
+    private val productReviewJpaPort: ProductReviewJpaPort
 ) : ProductUseCase {
 
+    @Transactional
     override fun createProduct(command: CreateProductCommand): ProductModel {
         validateForCreate(command.categoryId, command.name)
         validateCategoryExists(command.categoryId)
@@ -46,7 +57,10 @@ class ProductHandler(
                 .find { it.productId == product.id }
                 ?.also { productPriceCachePort.save(it) }
 
-        return buildProductListResult(product, allCategories, price)
+        val reviewStats = productReviewJpaPort.getReviewStatsByProductId(product.id)
+        val reviews = productReviewJpaPort.getProductReviewByProductId(product.id)
+
+        return buildProductResult(product, allCategories, price, reviewStats, reviews)
     }
 
     override fun getAllProducts(pageRequest: PageRequest): PageResponse<GetProductResult> {
@@ -62,9 +76,10 @@ class ProductHandler(
                 .also { productPriceCachePort.saveAll(it) }
 
         val prices = priceList.associateBy { it.productId }
+        val reviewStatsMap = productReviewJpaPort.getReviewStatsByProductIds(productIds)
 
         val results = products.map { product ->
-            buildProductListResult(product, allCategories, prices[product.id])
+            buildProductResult(product, allCategories, prices[product.id], reviewStatsMap[product.id])
         }
 
         return PageResponse.of(results, pageRequest, totalElements)
@@ -85,21 +100,41 @@ class ProductHandler(
                 .also { productPriceCachePort.saveAll(it) }
 
         val prices = priceList.associateBy { it.productId }
+        val reviewStatsMap = productReviewJpaPort.getReviewStatsByProductIds(productIds)
 
         val results = products.map { product ->
-            buildProductListResult(product, allCategories, prices[product.id])
+            buildProductResult(product, allCategories, prices[product.id], reviewStatsMap[product.id])
         }
 
         return PageResponse.of(results, pageRequest, totalElements)
     }
 
-    private fun buildProductListResult(
+    @Transactional
+    override fun deleteProduct(id: Long): ProductModel {
+        val product = validateProductExists(id)
+        return productJpaPort.delete(product)
+    }
+
+    @Transactional
+    override fun updateProduct(command: UpdateProductCommand): ProductModel {
+        validateForUpdate(command.id, command.categoryId, command.name)
+        validateCategoryExists(command.categoryId)
+        validateProductExists(command.id)
+
+        val product = ProductModel.of(command.id, command.categoryId, command.name)
+        return productJpaPort.update(product)
+    }
+
+    private fun buildProductResult(
         product: ProductModel,
         allCategories: Map<Long, ProductCategoryModel>,
-        price: ProductPriceModel?
+        price: ProductPriceModel?,
+        reviewStats: ReviewStats? = null,
+        reviews: List<ProductReviewModel>? = null
     ): GetProductResult {
         val categoryChain = mutableListOf<ProductCategoryModel>()
         var currentCategory = allCategories[product.categoryId]
+        val isOnSale = productStockJpaPort.isGreaterThanZero(product.id!!)
 
         while (currentCategory != null) {
             categoryChain.add(0, currentCategory)
@@ -111,12 +146,25 @@ class ProductHandler(
         }
 
         val depth = categoryChain.size
+        val stats = reviewStats ?: ReviewStats()
+
+        val reviewList = reviews?.map { review ->
+            ProductReviewResult(
+                productId = review.productId,
+                rating = review.rating,
+                comment = review.comment,
+                reviewerId = review.reviewerId,
+                reviewerName = review.reviewerName,
+                reviewDate = review.reviewDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            )
+        }
 
         return GetProductResult(
-            productId = product.id!!,
+            productId = product.id,
             productName = product.name,
+            isOnSale = isOnSale,
             largeClassId = categoryChain.getOrNull(0)?.id ?: 0L,
-            largeClassNAme = categoryChain.getOrNull(0)?.name ?: "",
+            largeClassName = categoryChain.getOrNull(0)?.name ?: "",
             mediumClassId = categoryChain.getOrNull(1)?.id,
             mediumClassName = categoryChain.getOrNull(1)?.name,
             smallClassId = categoryChain.getOrNull(2)?.id,
@@ -124,22 +172,11 @@ class ProductHandler(
             categoryDepth = depth,
             productPrice = price?.price?.toBigInteger() ?: BigInteger.ZERO,
             priceStartDate = price?.startDate ?: LocalDate.now(),
-            priceEndDate = price?.endDate ?: LocalDate.parse("9999-12-31")
+            priceEndDate = price?.endDate ?: LocalDate.parse("9999-12-31"),
+            reviewCount = stats.count,
+            averageRating = stats.averageRating,
+            reviewList = reviewList
         )
-    }
-
-    override fun deleteProduct(id: Long): ProductModel {
-        val product = validateProductExists(id)
-        return productJpaPort.delete(product)
-    }
-
-    override fun updateProduct(command: UpdateProductCommand): ProductModel {
-        validateForUpdate(command.id, command.categoryId, command.name)
-        validateCategoryExists(command.categoryId)
-        validateProductExists(command.id)
-
-        val product = ProductModel.of(command.id, command.categoryId, command.name)
-        return productJpaPort.update(product)
     }
 
     private fun validateProductExists(productId: Long): ProductModel {

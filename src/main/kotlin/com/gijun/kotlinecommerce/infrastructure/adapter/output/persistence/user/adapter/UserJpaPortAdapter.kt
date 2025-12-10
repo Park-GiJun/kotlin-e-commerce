@@ -1,0 +1,45 @@
+package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.user.adapter
+
+import com.gijun.kotlinecommerce.application.port.output.persistence.user.UserJpaPort
+import com.gijun.kotlinecommerce.domain.common.PageRequest
+import com.gijun.kotlinecommerce.domain.common.PageResponse
+import com.gijun.kotlinecommerce.domain.user.model.UserModel
+import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.user.repository.UserJpaRepository
+import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.user.entity.UserJpaEntity
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.stereotype.Component
+
+@Component
+class UserJpaPortAdapter(
+    private val userJpaRepository: UserJpaRepository
+) : UserJpaPort {
+
+    override fun save(userModel: UserModel): UserModel {
+        val entity = UserJpaEntity.Companion.fromDomain(userModel)
+        return userJpaRepository.save(entity).toDomainModel()
+    }
+
+    override fun findById(id: Long): UserModel? {
+        return userJpaRepository.findByIdOrNull(id)?.toDomainModel()
+    }
+
+    override fun findByUserId(userId: String): UserModel? {
+        return userJpaRepository.findByEmail(userId)?.toDomainModel()
+    }
+
+    override fun delete(userModel: UserModel): UserModel {
+        userModel.id?.let { userJpaRepository.deleteById(it) }
+        return userModel
+    }
+
+    override fun findAll(pageRequest: PageRequest): PageResponse<UserModel> {
+        val users = userJpaRepository.findAll()
+            .drop(pageRequest.getOffset().toInt())
+            .take(pageRequest.size)
+            .map { it.toDomainModel() }
+
+        val totalElements = userJpaRepository.count()
+
+        return PageResponse.Companion.of(users, pageRequest, totalElements)
+    }
+}

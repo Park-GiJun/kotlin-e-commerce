@@ -2,7 +2,7 @@ package com.gijun.kotlinecommerce.application.handler.product
 
 import com.gijun.kotlinecommerce.application.dto.command.product.productCategory.CreateProductCategoryCommand
 import com.gijun.kotlinecommerce.application.dto.command.product.productCategory.UpdateProductCategoryCommand
-import com.gijun.kotlinecommerce.application.dto.result.product.GetProductCategoryHierarchyResult
+import com.gijun.kotlinecommerce.application.dto.result.product.productCategory.GetProductCategoryHierarchyResult
 import com.gijun.kotlinecommerce.application.port.input.product.ProductCategoryUseCase
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductCategoryJpaPort
 import com.gijun.kotlinecommerce.domain.common.validator.CommonValidators
@@ -10,12 +10,15 @@ import com.gijun.kotlinecommerce.domain.product.exception.ProductCategoryNotFoun
 import com.gijun.kotlinecommerce.domain.product.exception.ProductValidationException
 import com.gijun.kotlinecommerce.domain.product.model.ProductCategoryModel
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional(readOnly = true)
 class ProductCategoryHandler(
     private val productCategoryJpaPort: ProductCategoryJpaPort
 ) : ProductCategoryUseCase {
 
+    @Transactional
     override fun createProductCategory(command: CreateProductCategoryCommand): ProductCategoryModel {
         val parentId = command.parentId ?: 0
         validateForCreate(parentId, command.name)
@@ -37,6 +40,7 @@ class ProductCategoryHandler(
         return validateCategoryExists(categoryId)
     }
 
+    @Transactional
     override fun updateProductCategory(command: UpdateProductCategoryCommand): ProductCategoryModel {
         val parentId = command.parentId ?: 0
         validateForUpdate(command.id, parentId, command.name)
@@ -55,6 +59,7 @@ class ProductCategoryHandler(
         return productCategoryJpaPort.update(category)
     }
 
+    @Transactional
     override fun deleteProductCategory(categoryId: Long): ProductCategoryModel {
         validateCategoryExists(categoryId)
         return productCategoryJpaPort.delete(categoryId)

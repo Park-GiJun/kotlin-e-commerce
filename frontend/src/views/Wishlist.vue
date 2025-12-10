@@ -87,25 +87,30 @@
 import { useRouter } from 'vue-router'
 import { useWishlistStore } from '../stores/wishlist'
 import { useCartStore } from '../stores/cart'
+import { useAlert } from '../composables/useAlert'
 import Layout from '../components/Layout.vue'
+
+const { success, confirm } = useAlert()
 
 const router = useRouter()
 const wishlistStore = useWishlistStore()
 const cartStore = useCartStore()
 
-function removeItem(productId) {
-  if (confirm('찜 목록에서 삭제하시겠습니까?')) {
+async function removeItem(productId) {
+  const confirmed = await confirm('찜 목록에서 삭제하시겠습니까?', '삭제 확인')
+  if (confirmed) {
     wishlistStore.removeFromWishlist(productId)
   }
 }
 
 function addToCart(item) {
   cartStore.addToCart(item, 1)
-  alert('장바구니에 추가되었습니다.')
+  success('장바구니에 추가되었습니다.')
 }
 
-function clearAll() {
-  if (confirm('찜 목록을 전체 삭제하시겠습니까?')) {
+async function clearAll() {
+  const confirmed = await confirm('찜 목록을 전체 삭제하시겠습니까?', '전체 삭제')
+  if (confirmed) {
     wishlistStore.clearWishlist()
   }
 }

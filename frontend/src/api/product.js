@@ -33,5 +33,14 @@ export const productAPI = {
   async delete(id) {
     const response = await axios.delete(`/products/${id}`)
     return response.data
+  },
+
+  async createReview(productId, reviewerId, rating, comment) {
+    const response = await axios.post(`/reviews/products/${productId}`, {
+      reviewerId,
+      rating,
+      comment
+    })
+    return response.data
   }
 }

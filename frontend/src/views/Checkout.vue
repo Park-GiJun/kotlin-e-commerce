@@ -189,7 +189,10 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart'
 import { useAuthStore } from '../stores/auth'
+import { useAlert } from '../composables/useAlert'
 import Layout from '../components/Layout.vue'
+
+const { success, warning, info } = useAlert()
 
 const router = useRouter()
 const cartStore = useCartStore()
@@ -255,12 +258,12 @@ function searchAddress() {
   // Dummy address search
   form.value.zipCode = '06234'
   form.value.address = '서울특별시 강남구 테헤란로 123'
-  alert('주소 검색 기능은 실제 API 연동이 필요합니다. (카카오 주소 API 등)')
+  info('주소 검색 기능은 실제 API 연동이 필요합니다. (카카오 주소 API 등)')
 }
 
 function processOrder() {
   if (!canProcessOrder.value) {
-    alert('필수 항목을 모두 입력해주세요.')
+    warning('필수 항목을 모두 입력해주세요.')
     return
   }
 
@@ -293,7 +296,7 @@ function processOrder() {
   cartStore.clearCart()
 
   // Redirect to order complete page
-  alert('주문이 완료되었습니다!')
+  success('주문이 완료되었습니다!')
   router.push(`/orders/${order.id}`)
 }
 </script>

@@ -175,7 +175,10 @@
 import { ref, onMounted } from 'vue'
 import { productAPI } from '../api/product'
 import { productPriceAPI } from '../api/productPrice'
+import { useAlert } from '../composables/useAlert'
 import Layout from '../components/Layout.vue'
+
+const { success, error, confirm } = useAlert()
 
 const products = ref([])
 const productPrices = ref([])
@@ -201,9 +204,9 @@ async function loadProducts() {
       currentPage.value = pageResponse.page
       totalPages.value = pageResponse.totalPages
     }
-  } catch (error) {
-    console.error('Failed to load products:', error)
-    alert('상품 목록을 불러오는데 실패했습니다: ' + error.message)
+  } catch (err) {
+    console.error('Failed to load products:', err)
+    error('상품 목록을 불러오는데 실패했습니다: ' + err.message)
   }
 }
 
@@ -212,9 +215,9 @@ async function loadProductPrices(productId) {
     const res = await productPriceAPI.getByProductId(productId)
     productPrices.value = res.data || []
     productPrices.value.sort((a, b) => new Date(b.startDate) - new Date(a.startDate))
-  } catch (error) {
-    console.error('Failed to load product prices:', error)
-    alert('가격 이력을 불러오는데 실패했습니다: ' + error.message)
+  } catch (err) {
+    console.error('Failed to load product prices:', err)
+    error('가격 이력을 불러오는데 실패했습니다: ' + err.message)
   }
 }
 
@@ -280,22 +283,25 @@ async function savePrice() {
     clearPriceSelection()
     await loadProductPrices(selectedProduct.value.productId)
     await loadProducts() // 현재 가격이 변경될 수 있으므로 상품 목록도 다시 로드
-  } catch (error) {
-    alert('저장 실패: ' + error.message)
+    success('가격이 저장되었습니다!')
+  } catch (err) {
+    error('저장 실패: ' + err.message)
   }
 }
 
 async function deletePrice() {
   if (!selectedPrice.value) return
-  if (!confirm('이 가격 정보를 삭제하시겠습니까?')) return
+  const confirmed = await confirm('이 가격 정보를 삭제하시겠습니까?', '삭제 확인')
+  if (!confirmed) return
 
   try {
     await productPriceAPI.delete(selectedPrice.value.id)
     clearPriceSelection()
     await loadProductPrices(selectedProduct.value.productId)
     await loadProducts()
-  } catch (error) {
-    alert('삭제 실패: ' + error.message)
+    success('가격이 삭제되었습니다!')
+  } catch (err) {
+    error('삭제 실패: ' + err.message)
   }
 }
 
