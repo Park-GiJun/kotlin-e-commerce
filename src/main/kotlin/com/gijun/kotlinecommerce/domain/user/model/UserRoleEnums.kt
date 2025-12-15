@@ -1,6 +1,6 @@
 package com.gijun.kotlinecommerce.domain.user.model
 
-enum class UserRole(val description: String) {
+enum class UserRoleEnums(val description: String) {
     USER("일반 사용자"),
     ADMIN("관리자");
 

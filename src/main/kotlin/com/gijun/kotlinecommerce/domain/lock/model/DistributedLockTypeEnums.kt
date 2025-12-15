@@ -1,6 +1,6 @@
 package com.gijun.kotlinecommerce.domain.lock.model
 
-enum class DistributedLockType(
+enum class DistributedLockTypeEnums(
     val prefix: String,
     val waitTime: Long = 5L,
     val leaseTime: Long = 10L

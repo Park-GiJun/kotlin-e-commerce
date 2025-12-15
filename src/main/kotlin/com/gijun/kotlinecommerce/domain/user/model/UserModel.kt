@@ -5,14 +5,14 @@ data class UserModel(
     val email: String,
     val name: String,
     val password: String,
-    val role: UserRole = UserRole.USER
+    val role: UserRoleEnums = UserRoleEnums.USER
 ) {
     companion object {
-        fun create(email: String, name: String, password: String, role: UserRole = UserRole.USER): UserModel {
+        fun create(email: String, name: String, password: String, role: UserRoleEnums = UserRoleEnums.USER): UserModel {
             return UserModel(null, email, name, password, role)
         }
 
-        fun of(id: Long, email: String, name: String, password: String, role: UserRole = UserRole.USER): UserModel {
+        fun of(id: Long, email: String, name: String, password: String, role: UserRoleEnums = UserRoleEnums.USER): UserModel {
             return UserModel(id, email, name, password, role)
         }
     }

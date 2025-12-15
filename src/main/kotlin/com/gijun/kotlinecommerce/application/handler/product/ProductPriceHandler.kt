@@ -8,7 +8,7 @@ import com.gijun.kotlinecommerce.application.port.output.cache.ProductPriceCache
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductJpaPort
 import com.gijun.kotlinecommerce.application.port.output.persistence.product.ProductPriceJpaPort
 import com.gijun.kotlinecommerce.domain.common.validator.CommonValidators
-import com.gijun.kotlinecommerce.domain.lock.model.DistributedLockType
+import com.gijun.kotlinecommerce.domain.lock.model.DistributedLockTypeEnums
 import com.gijun.kotlinecommerce.domain.product.exception.ProductNotFoundException
 import com.gijun.kotlinecommerce.domain.product.exception.ProductPriceNotFoundException
 import com.gijun.kotlinecommerce.domain.product.exception.ProductPriceValidationException
@@ -29,7 +29,7 @@ class ProductPriceHandler(
 ) : ProductPriceUseCase {
 
     @Transactional
-    @DistributeLock(type = DistributedLockType.PRICE, key = "#command.productId")
+    @DistributeLock(type = DistributedLockTypeEnums.PRICE, key = "#command.productId")
     override fun createProductPrice(command: CreateProductPriceCommand): ProductPriceModel {
         validateForCreate(command.productId, command.price, command.startDate, command.endDate)
 
@@ -55,7 +55,7 @@ class ProductPriceHandler(
     }
 
     @Transactional
-    @DistributeLock(type = DistributedLockType.PRICE, key = "#command.productId")
+    @DistributeLock(type = DistributedLockTypeEnums.PRICE, key = "#command.productId")
     override fun updateProductPrice(command: UpdateProductPriceCommand): ProductPriceModel {
         validateForUpdate(command.productPriceId, command.productId, command.price, command.startDate, command.endDate)
 
@@ -119,7 +119,7 @@ class ProductPriceHandler(
     }
 
     @Transactional
-    @DistributeLock(type = DistributedLockType.PRICE, key = "#id")
+    @DistributeLock(type = DistributedLockTypeEnums.PRICE, key = "#id")
     override fun deleteProductPrice(id: Long): ProductPriceModel {
         CommonValidators.validatePositive(id, "상품 가격 ID")
         val productPrice = validateProductPriceExists(id)

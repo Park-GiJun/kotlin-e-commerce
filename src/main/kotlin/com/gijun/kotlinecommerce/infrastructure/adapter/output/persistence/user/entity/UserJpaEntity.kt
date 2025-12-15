@@ -1,7 +1,7 @@
 package com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.user.entity
 
 import com.gijun.kotlinecommerce.domain.user.model.UserModel
-import com.gijun.kotlinecommerce.domain.user.model.UserRole
+import com.gijun.kotlinecommerce.domain.user.model.UserRoleEnums
 import com.gijun.kotlinecommerce.infrastructure.adapter.output.persistence.common.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -27,7 +27,7 @@ class UserJpaEntity(
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    var role: UserRole = UserRole.USER
+    var role: UserRoleEnums = UserRoleEnums.USER
 ) : BaseEntity() {
 
     fun toDomainModel(): UserModel {

@@ -34,7 +34,7 @@ class CartRestAdapter(
                 userId = user.getUserModel().id!!,
                 productId = request.productId,
                 qty = request.qty,
-                action = request.action
+                actionEnums = request.actionEnums
             )
         )
     }

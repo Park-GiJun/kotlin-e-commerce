@@ -1,16 +1,16 @@
 package com.gijun.kotlinecommerce.domain.product.model
 
-import com.gijun.kotlinecommerce.domain.common.eunms.Action
+import com.gijun.kotlinecommerce.domain.common.eunms.ActionEnums
 
 data class ProductStockModel(
     val id: Long?,
     val productId: Long,
     val quantity: Int
 ) {
-    fun update(action: Action, quantity: Int): ProductStockModel {
-        val newQuantity = when (action) {
-            Action.ADD -> this.quantity + quantity
-            Action.REMOVE -> this.quantity - quantity
+    fun update(actionEnums: ActionEnums, quantity: Int): ProductStockModel {
+        val newQuantity = when (actionEnums) {
+            ActionEnums.ADD -> this.quantity + quantity
+            ActionEnums.REMOVE -> this.quantity - quantity
         }
         return this.copy(quantity = newQuantity)
     }

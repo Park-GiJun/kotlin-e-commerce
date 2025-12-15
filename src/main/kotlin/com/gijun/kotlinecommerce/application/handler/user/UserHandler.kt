@@ -7,7 +7,7 @@ import com.gijun.kotlinecommerce.application.port.output.persistence.user.UserJp
 import com.gijun.kotlinecommerce.domain.common.PageRequest
 import com.gijun.kotlinecommerce.domain.common.PageResponse
 import com.gijun.kotlinecommerce.domain.common.validator.CommonValidators
-import com.gijun.kotlinecommerce.domain.lock.model.DistributedLockType
+import com.gijun.kotlinecommerce.domain.lock.model.DistributedLockTypeEnums
 import com.gijun.kotlinecommerce.domain.user.exception.UserAlreadyExistsException
 import com.gijun.kotlinecommerce.domain.user.exception.UserNotFoundException
 import com.gijun.kotlinecommerce.domain.user.exception.UserValidationException
@@ -24,7 +24,7 @@ class UserHandler(
 ) : UserUseCase {
 
     @Transactional
-    @DistributeLock(type = DistributedLockType.USER, key = "#command.email")
+    @DistributeLock(type = DistributedLockTypeEnums.USER, key = "#command.email")
     override fun registerUser(command: RegisterUserCommand): UserModel {
         validateForRegister(command.email, command.name, command.password)
         validateUserNotExists(command.email)
@@ -35,7 +35,7 @@ class UserHandler(
     }
 
     @Transactional
-    @DistributeLock(type = DistributedLockType.USER, key = "#userId")
+    @DistributeLock(type = DistributedLockTypeEnums.USER, key = "#userId")
     override fun deleteUser(userId: String): Boolean {
         val user = validateUserExists(userId)
         userJpaPort.delete(user)

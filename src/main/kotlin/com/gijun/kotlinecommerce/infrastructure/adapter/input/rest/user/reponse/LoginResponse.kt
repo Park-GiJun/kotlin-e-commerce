@@ -1,7 +1,7 @@
 package com.gijun.kotlinecommerce.infrastructure.adapter.input.rest.user.reponse
 
 import com.gijun.kotlinecommerce.domain.user.model.UserModel
-import com.gijun.kotlinecommerce.domain.user.model.UserRole
+import com.gijun.kotlinecommerce.domain.user.model.UserRoleEnums
 
 data class LoginResponse(
     val token: String,
@@ -26,5 +26,5 @@ data class UserResponseDto(
     val id: Long?,
     val email: String,
     val name: String,
-    val role: UserRole
+    val role: UserRoleEnums
 )
